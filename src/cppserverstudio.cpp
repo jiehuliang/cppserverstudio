@@ -2,11 +2,8 @@
 //
 
 #include "cppserverstudio.h"
-
 using namespace std;
 
-int main()
-{
-	cout << "Hello CMake." << endl;
-	return 0;
+void testHello::printHello() {
+    cout << "Hello World!" << endl;
 }

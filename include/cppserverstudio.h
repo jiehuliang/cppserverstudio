@@ -4,5 +4,11 @@
 #pragma once
 
 #include <iostream>
+#include <string>
+
+class testHello {
+public:
+	void printHello();
+};
 
 // TODO: 在此处引用程序需要的其他标头。
