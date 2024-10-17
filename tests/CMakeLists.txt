@@ -2,9 +2,6 @@ aux_source_directory(. SRCLIST)
 
 include_directories(../include)
 
-#ÉèÖÃ×ÓÄ¿Â¼
-#Set subdirectories
-set(SUB_DIR_LIST "Util")
 
 foreach(TEST_SRC ${SRCLIST})
 	STRING(REGEX REPLACE "^\\./|\\.c[a-zA-Z0-9_]*$" "" TEST_EXE_NAME ${TEST_SRC})

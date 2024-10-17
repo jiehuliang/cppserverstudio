@@ -22,6 +22,8 @@
 
 #include "util.h"
 
+#define BUFFER_SIZE 1024 
+
 int main() {
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	errif(sockfd == -1,"socket create_error");
@@ -36,7 +38,7 @@ int main() {
 	errif(ret == -1, "sockfd connect error");
 
 	while (true) {
-		char buf[1024];
+		char buf[BUFFER_SIZE];
 		memset(&buf, 0, sizeof(buf));
 		//std::cin >> buf;
 		std::cin.getline(buf, sizeof(buf));

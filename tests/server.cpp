@@ -1,27 +1,12 @@
 
-#if defined(_WIN32)
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <iphlpapi.h>
-#pragma comment (lib, "Ws2_32.lib")
-#pragma comment(lib,"Iphlpapi.lib")
-#else
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <net/if.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <unistd.h>
-#endif // defined(_WIN32)
-
-#include <stdio.h>
-#include <string>
-#include <cstring>
-#include <iostream>
-
 #include "util.h"
+#include "InetAddress.h"
+#include "Epoll.h"
+#include "Socket.h"
+
+
+#define MAX_EVENTS 1024
+#define READ_BUFFER 1024
 
 int main() {
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -37,29 +22,62 @@ int main() {
 
 	errif(listen(sockfd, SOMAXCONN) == -1,"sock listen error");
 
-	struct sockaddr_in clnt_addr;
-	socklen_t clnt_addr_size = sizeof(clnt_addr);
-	memset(&clnt_addr,0,sizeof(clnt_addr));
+	int epfd = epoll_create1(0);
+	errif(epfd == -1,"epoll create error");
+	
+	struct epoll_event events[MAX_EVENTS], ev;
+	memset(events, 0, sizeof(events));
+	memset(&ev, 0, sizeof(ev));
 
-	int clnt_sockfd = accept(sockfd,(sockaddr*)&clnt_addr,&clnt_addr_size);
-	errif(clnt_sockfd == -1,"sock accept error");
+	ev.data.fd = sockfd;
+	ev.events = EPOLLIN;
+	epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
 
-	printf("new client fd %d! IP: %s Port: %d\r\n", clnt_sockfd, inet_ntoa(clnt_addr.sin_addr), ntohs(clnt_addr.sin_port));
 	while (true) {
-		char buf[1024];
-		memset(buf,0,sizeof(buf));
-		ssize_t read_bytes = read(clnt_sockfd, buf, sizeof(buf));
-		if (read_bytes > 0) {
-			printf("message from client fd %zd: %s\r\n", read_bytes, buf);
-			write(clnt_sockfd, buf, read_bytes);
-		}
-		else if (read_bytes == 0) {
-			std::cout << "clkient fd "<< clnt_sockfd <<" disconnected\n";
-			close(clnt_sockfd);
-		}
-		else if (read_bytes == -1) {
-			close(clnt_sockfd);
-			errif(true,"socket read error");
+		int nfds = epoll_wait(epfd,events,MAX_EVENTS,-1);
+		errif(nfds == -1, "epoll wait error");
+		for (int i = 0; i <= nfds; i++) {
+			if (events[i].data.fd == sockfd) {
+				struct sockaddr_in clnt_addr;
+				socklen_t clnt_addr_size = sizeof(clnt_addr);
+				memset(&clnt_addr, 0, sizeof(clnt_addr));
+
+				int clnt_sockfd = accept(sockfd, (sockaddr*)&clnt_addr, &clnt_addr_size);
+				errif(clnt_sockfd == -1, "sock accept error");
+
+				printf("new client fd %d! IP: %s Port: %d\r\n", clnt_sockfd, inet_ntoa(clnt_addr.sin_addr), ntohs(clnt_addr.sin_port));
+
+				struct epoll_event clnev;
+				memset(&clnev, 0, sizeof(clnev));
+				clnev.data.fd = clnt_sockfd;
+				clnev.events = EPOLLIN | EPOLLET;
+				setnonblocking(clnt_sockfd);
+				epoll_ctl(epfd,EPOLL_CTL_ADD,clnt_sockfd,&clnev);
+			}
+			else if (events[i].events == EPOLLIN) {
+				char buf[READ_BUFFER];
+				while (true) {
+					memset(buf, 0, sizeof(buf));
+					ssize_t read_bytes = read(events[i].data.fd, buf, sizeof(buf));
+					if (read_bytes > 0) {
+						printf("message from client fd %d: %s\n", sockfd, buf);
+						write(sockfd, buf, sizeof(buf));
+					}
+					else if (read_bytes == -1 && errno == EINTR) {
+						printf("continue reading");
+						continue;
+					}
+					else if (read_bytes == -1 && ((errno == EAGAIN)|| (errno == EWOULDBLOCK))){
+						printf("finish reading once, errno: %d\n", errno);
+						break;
+					}
+					else if (read_bytes == 0) {
+						printf("EOF, client fd %d disconnected\n", sockfd);
+						close(events[i].data.fd);
+						break;
+					}
+				}
+			}
 		}
 	}
 	close(sockfd);
