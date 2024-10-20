@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 #设置子目录
 #Set subdirectories
-set(SUB_DIR_LIST "Util" "NetWork")
+set(SUB_DIR_LIST "Util" "NetWork" "Event")
 
 foreach(SUB_DIR ${SUB_DIR_LIST})
     #遍历源文件
@@ -22,6 +22,16 @@ foreach(SUB_DIR ${SUB_DIR_LIST})
     aux_source_directory(src/${SUB_DIR} SRC_LIST)
     include_directories(src/${SUB_DIR})
 endforeach()
+
+#安装目录
+#Installation directory
+if(WIN32)
+    set(INSTALL_PATH_LIB $ENV{HOME}/${PROJECT_NAME}/lib)
+    set(INSTALL_PATH_INCLUDE $ENV{HOME}/${PROJECT_NAME}/include)
+else()
+    set(INSTALL_PATH_LIB lib)
+    set(INSTALL_PATH_INCLUDE include)
+endif()
 
 if(WIN32)
     set(LINK_LIB_LIST WS2_32 Iphlpapi shlwapi)
@@ -36,6 +46,7 @@ if(NOT IOS AND NOT ANDROID AND NOT WIN32)
     target_include_directories(${PROJECT_NAME}_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
     target_link_libraries(${PROJECT_NAME}_shared ${LINK_LIB_LIST})
     set_target_properties(${PROJECT_NAME}_shared PROPERTIES OUTPUT_NAME "${PROJECT_NAME}")
+    set_target_properties(${PROJECT_NAME}_shared PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
     install(TARGETS ${PROJECT_NAME}_shared  ARCHIVE DESTINATION ${INSTALL_PATH_LIB} LIBRARY DESTINATION ${INSTALL_PATH_LIB})
 endif()
 

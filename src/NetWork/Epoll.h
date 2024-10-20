@@ -3,17 +3,19 @@
 #include <sys/epoll.h>
 #include <vector>
 
+#include "Channel.h"
+
 
 class Epoll {
 public:
     Epoll();
     ~Epoll();
     void add(int fd, uint32_t op);
-    void del(int fd) ;
-    void update(int fd, int events);
-    std::vector<epoll_event> poll(int timeout = -1);
+    void updateChannel(Channel*);
+    std::vector<Channel*> poll(int timeout = -1);
+    //std::vector<epoll_event> poll(int timeout = -1);
 private:
     int epoll_fd;
     struct epoll_event *events;
 };
-#endif
+#endif //EPOLL_H
