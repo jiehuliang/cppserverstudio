@@ -1,5 +1,7 @@
 #include "Epoll.h"
 #include "util.h"
+#include "Channel.h"
+
 
 #include <unistd.h>
 #include <string.h>

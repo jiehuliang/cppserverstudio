@@ -1,5 +1,4 @@
 #include "Channel.h"
-#include "Epoll.h"
 #include "EventLoop.h"
 
 Channel::Channel(EventLoop* _loop , int _fd) :loop(_loop), fd(_fd), events(0), revents(0), inEpoll(false) {
@@ -47,6 +46,6 @@ void Channel::setRevents(uint32_t _ev) {
     revents = _ev;
 }
 
-void Channel::setCallback(std::function<void()> cb) {
-    callback = cb;
+void Channel::setCallback(std::function<void()> _cb) {
+    callback = _cb;
 }

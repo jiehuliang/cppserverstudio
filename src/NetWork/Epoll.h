@@ -3,7 +3,7 @@
 #include <sys/epoll.h>
 #include <vector>
 
-#include "Channel.h"
+class Channel;
 
 
 class Epoll {
