@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 #设置子目录
 #Set subdirectories
-set(SUB_DIR_LIST "Util" "NetWork" "Event")
+set(SUB_DIR_LIST "Util" "NetWork" "Event" "Thread")
 
 foreach(SUB_DIR ${SUB_DIR_LIST})
     #遍历源文件

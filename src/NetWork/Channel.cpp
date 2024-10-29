@@ -10,7 +10,7 @@ Channel::~Channel() {
 }
 
 void Channel::handleEvent() {
-    callback();
+    loop->addThread(callback);
 }
 
 void Channel::enableReading() {
