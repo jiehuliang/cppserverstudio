@@ -9,20 +9,18 @@ class ThreadPool;
 
 class EventLoop {
 private:
-	Epoll* epoll;
-	ThreadPool* threadPool;
-	bool quit;
+  Epoll *epoll;
+  ThreadPool *threadPool;
+  bool quit;
 
 public:
-	EventLoop();
-	~EventLoop();
+  EventLoop();
+  ~EventLoop();
 
-	void loop();
-	void updateChannel(Channel*);
+  void loop();
+  void updateChannel(Channel *);
 
-	void addThread(std::function<void()>);
+  void addThread(std::function<void()>);
 };
 
-
-
-#endif //EVENTLOOP_H
+#endif // EVENTLOOP_H
