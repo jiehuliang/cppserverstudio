@@ -1,61 +1,79 @@
+
 #include "Connection.h"
 #include "Buffer.h"
 #include "Channel.h"
 #include "Socket.h"
 #include "util.h"
-
-#include <errno.h>
-#include <stdio.h>
+#include <cstring>
+#include <iostream>
 #include <string.h>
 #include <unistd.h>
 
-#define READ_BUFFER 1024
-
 Connection::Connection(EventLoop *_loop, Socket *_sock)
-    : loop(_loop), sock(_sock), channel(nullptr), inBuffer(new std::string()),
-      readBuffer(nullptr) {
-  channel = new Channel(loop, sock->getfd());
-  std::function<void()> cb = std::bind(&Connection::echo, this, sock->getfd());
-  channel->setCallback(cb);
-  channel->enableReading();
+    : loop(_loop), sock(_sock), channel(nullptr), readBuffer(nullptr) {
+  channel = new Channel(loop, sock->getFd());
+  channel->enableRead();
+  channel->useET();
+  std::function<void()> cb = std::bind(&Connection::echo, this, sock->getFd());
+  channel->setReadCallback(cb);
   readBuffer = new Buffer();
 }
 
 Connection::~Connection() {
   delete channel;
   delete sock;
+  delete readBuffer;
+}
+
+void Connection::setDeleteConnectionCallback(std::function<void(int)> _cb) {
+  deleteConnectionCallback = _cb;
 }
 
 void Connection::echo(int sockfd) {
-  char buf[READ_BUFFER];
-  while (
-      true) { // ÓÉÓÚÊ¹ÓÃ·Ç×èÈûIO£¬¶ÁÈ¡¿Í»§¶Ëbuffer£¬Ò»´Î¶ÁÈ¡buf´óÐ¡Êý¾Ý£¬Ö±µ½È«²¿¶ÁÈ¡Íê±Ï
+  char buf[1024]; // è¿™ä¸ªbufå¤§å°æ— æ‰€è°“
+  // ç”±äºŽä½¿ç”¨éžé˜»å¡žIOï¼Œè¯»å–å®¢æˆ·ç«¯bufferï¼Œä¸€æ¬¡è¯»å–bufå¤§å°æ•°æ®ï¼Œç›´åˆ°å…¨éƒ¨è¯»å–å®Œæ¯•
+  while (true) {
     memset(&buf, 0, sizeof(buf));
     ssize_t bytes_read = read(sockfd, buf, sizeof(buf));
     if (bytes_read > 0) {
-      printf("message from client fd %d: %s\n", sockfd, buf);
       readBuffer->append(buf, bytes_read);
-    } else if (bytes_read == -1 && errno == EINTR) { // ¿Í»§¶ËÕý³£ÖÐ¶Ï¡¢¼ÌÐø¶ÁÈ¡
-      printf("continue reading");
+    } else if (bytes_read == -1 && errno == EINTR) { // å®¢æˆ·ç«¯æ­£å¸¸ä¸­æ–­ã€ç»§ç»­è¯»å–
+      printf("continue reading\n");
       continue;
     } else if (bytes_read == -1 &&
                ((errno == EAGAIN) ||
                 (errno ==
-                 EWOULDBLOCK))) { // ·Ç×èÈûIO£¬Õâ¸öÌõ¼þ±íÊ¾Êý¾ÝÈ«²¿¶ÁÈ¡Íê±Ï
-      printf("finish reading once, errno: %d\n", errno);
-      errif(write(sockfd, readBuffer->c_str(), readBuffer->size()) == -1,
-            "socket write error");
+                 EWOULDBLOCK))) { // éžé˜»å¡žIOï¼Œè¿™ä¸ªæ¡ä»¶è¡¨ç¤ºæ•°æ®å…¨éƒ¨è¯»å–å®Œæ¯•
+      printf("message from client fd %d: %s\n", sockfd, readBuffer->c_str());
+      // errif(write(sockfd, readBuffer->c_str(), readBuffer->size()) == -1,
+      // "socket write error");
+      send(sockfd);
       readBuffer->clear();
       break;
-    } else if (bytes_read == 0) { // EOF£¬¿Í»§¶Ë¶Ï¿ªÁ¬½Ó
+    } else if (bytes_read == 0) { // EOFï¼Œå®¢æˆ·ç«¯æ–­å¼€è¿žæŽ¥
       printf("EOF, client fd %d disconnected\n", sockfd);
-      deleteConnectionCallback(sock);
+      deleteConnectionCallback(sockfd);
+      break;
+    } else {
+      printf("Connection reset by peer\n");
+      deleteConnectionCallback(sockfd);
       break;
     }
   }
 }
 
-void Connection::setDeleteConnectionCallback(
-    std::function<void(Socket *)> _cb) {
-  deleteConnectionCallback = _cb;
+void Connection::send(int sockfd) {
+  char buf[readBuffer->size() + 1];
+  // strcpy(buf, readBuffer->c_str());
+  strncpy(buf, readBuffer->c_str(), readBuffer->size());
+  buf[readBuffer->size() + 1] = '\0';
+  int data_size = readBuffer->size();
+  int data_left = data_size;
+  while (data_left > 0) {
+    ssize_t bytes_write = write(sockfd, buf + data_size - data_left, data_left);
+    if (bytes_write == -1 && errno == EAGAIN) {
+      break;
+    }
+    data_left -= bytes_write;
+  }
 }

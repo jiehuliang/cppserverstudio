@@ -1,6 +1,5 @@
-#ifndef THREAD_POOL_H
-#define THREAD_POOL_H
-
+#ifndef THREADPOOL_H
+#define THREADPOOL_H
 #include <condition_variable>
 #include <functional>
 #include <future>
@@ -27,23 +26,26 @@ public:
       -> std::future<typename std::result_of<F(Args...)>::type>;
 };
 
-// ²»ÄÜ·ÅÔÚcppÎÄ¼ş£¬Ô­ÒòÊÇC++±àÒëÆ÷²»Ö§³ÖÄ£°åµÄ·ÖÀë±àÒë
+// ä¸èƒ½æ”¾åœ¨cppæ–‡ä»¶ï¼ŒC++ç¼–è¯‘å™¨ä¸æ”¯æŒæ¨¡ç‰ˆçš„åˆ†ç¦»ç¼–è¯‘
 template <class F, class... Args>
 auto ThreadPool::add(F &&f, Args &&...args)
     -> std::future<typename std::result_of<F(Args...)>::type> {
   using return_type = typename std::result_of<F(Args...)>::type;
+
   auto task = std::make_shared<std::packaged_task<return_type()>>(
       std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
   std::future<return_type> res = task->get_future();
   {
     std::unique_lock<std::mutex> lock(tasks_mtx);
+
+    // don't allow enqueueing after stopping the pool
     if (stop)
-      throw std::runtime_error("add to stopped threadpool");
-    tasks.emplace([task] { (*task)(); });
+      throw std::runtime_error("enqueue on stopped ThreadPool");
+
+    tasks.emplace([task]() { (*task)(); });
   }
   cv.notify_one();
   return res;
 }
-
-#endif // THREAD_POOL_H
+#endif

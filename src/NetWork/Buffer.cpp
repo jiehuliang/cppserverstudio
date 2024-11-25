@@ -1,7 +1,7 @@
+
 #include "Buffer.h"
 #include <iostream>
 #include <string.h>
-
 Buffer::Buffer() {}
 
 Buffer::~Buffer() {}
@@ -23,4 +23,9 @@ void Buffer::clear() { buf.clear(); }
 void Buffer::getline() {
   buf.clear();
   std::getline(std::cin, buf);
+}
+
+void Buffer::setBuf(const char *_buf) {
+  buf.clear();
+  buf.append(_buf);
 }
