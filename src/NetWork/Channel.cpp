@@ -1,47 +1,64 @@
 
 #include "Channel.h"
 #include "EventLoop.h"
-#include "Socket.h"
-#include <stdio.h>
+#include "common.h"
+
 #include <sys/epoll.h>
 #include <unistd.h>
-Channel::Channel(EventLoop *_loop, int _fd)
-    : loop(_loop), fd(_fd), events(0), ready(0), inEpoll(false) {}
+#include <utility>
+
+
+Channel::Channel(int fd, EventLoop *loop) : fd_(fd), loop_(loop),
+                                            listen_events_(0), ready_events_(0),
+                                            in_epoll_(false){};
 
 Channel::~Channel() {
-  if (fd != -1) {
-    close(fd);
-    fd = -1;
-  }
+    if(fd_ != -1){
+        close(fd_);
+        fd_ = -1;
+    } 
 }
 
-void Channel::handleEvent() {
-  if (ready & (EPOLLIN | EPOLLPRI)) {
-    readCallback();
-  }
-  if (ready & (EPOLLOUT)) {
-    writeCallback();
-  }
+void Channel::HandleEvent() const{
+    if (ready_events_ & (EPOLLIN | EPOLLPRI | EPOLLRDHUP)) {
+        if (read_callback_) {
+        read_callback_();
+        }
+    }
+
+    if (ready_events_ & EPOLLOUT) {
+        if (write_callback_) {
+            write_callback_();
+        }
+    }
 }
 
-void Channel::enableRead() {
-  events |= EPOLLIN | EPOLLPRI;
-  loop->updateChannel(this);
+void Channel::EnableRead(){
+    listen_events_ |= (EPOLLIN | EPOLLPRI);
+    loop_->UpdateChannel(this);
 }
 
-void Channel::useET() {
-  events |= EPOLLET;
-  loop->updateChannel(this);
+void Channel::EnableWrite(){
+    listen_events_ |= EPOLLOUT;
+    loop_->UpdateChannel(this);
 }
-int Channel::getFd() { return fd; }
 
-uint32_t Channel::getEvents() { return events; }
-uint32_t Channel::getReady() { return ready; }
+void Channel::EnableET(){
+    listen_events_ |= EPOLLET;
+    loop_->UpdateChannel(this);
+}
 
-bool Channel::getInEpoll() { return inEpoll; }
+int Channel::fd() const { return fd_; }
 
-void Channel::setInEpoll(bool _in) { inEpoll = _in; }
+short Channel::listen_events() const { return listen_events_; }
+short Channel::ready_events() const { return ready_events_; }
 
-void Channel::setReady(uint32_t _ev) { ready = _ev; }
+bool Channel::IsInEpoll() const { return in_epoll_; }
+void Channel::SetInEpoll(bool in) { in_epoll_ = in; }
 
-void Channel::setReadCallback(std::function<void()> _cb) { readCallback = _cb; }
+void Channel::SetReadyEvents(int ev){
+    ready_events_ = ev;
+}
+
+void Channel::set_read_callback(std::function<void()> const &callback) { read_callback_ = std::move(callback); }
+void Channel::set_write_callback(std::function<void()> const &callback) { write_callback_ = std::move(callback); }

@@ -1,20 +1,25 @@
 #ifndef BUFFER_H
 #define BUFFER_H
+#include <memory.h>
 #include <string>
+#include "common.h"
 
-class Buffer {
-private:
-  std::string buf;
+class Buffer{
+    public:
+        DISALLOW_COPY_AND_MOVE(Buffer);
+        Buffer() = default;
+        ~Buffer() = default;
 
-public:
-  Buffer();
-  ~Buffer();
+        const std::string &buf() const;
+        const char *c_str() const;
 
-  void append(const char *_str, int _size);
-  ssize_t size();
-  const char *c_str();
-  void clear();
-  void getline();
-  void setBuf(const char *);
+        void set_buf(const char *buf);
+
+        size_t Size() const;
+        void Append(const char *_str, int _size);
+        void Clear();
+    
+    private:
+        std::string buf_;
 };
 #endif // BUFFER_H

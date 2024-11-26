@@ -1,23 +1,23 @@
 #ifndef EVENTLOOP_H
 #define EVENTLOOP_H
 
-#include <functional>
+#include "Epoller.h"
+#include "common.h"
 
-class Epoll;
-class Channel;
-class EventLoop {
-private:
-  Epoll *ep;
-  bool quit;
-
+class Epoller;
+class EventLoop
+{
 public:
-  EventLoop();
-  ~EventLoop();
+    DISALLOW_COPY_AND_MOVE(EventLoop);
+    EventLoop();
+    ~EventLoop();
 
-  void loop();
-  void updateChannel(Channel *);
+    void Loop() const;
+    void UpdateChannel(Channel *ch) const;
+    void DeleteChannel(Channel *ch) const;
 
-  void addThread(std::function<void()>);
+private:
+    std::unique_ptr<Epoller> poller_;
 };
 
 #endif // EVENTLOOP_H
