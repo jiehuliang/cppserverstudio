@@ -12,11 +12,11 @@ void test(){
 
 int main(int argc, char const *argv[])
 {
-    ThreadPool * pool = new ThreadPool();
+    ThreadPool *poll = new ThreadPool();
     std::function<void()> func = std::bind(print, 1, 3.14, "hello", std::string("world"));
-    pool->add(func);
+    poll->add(func);
     func = test;
-    pool->add(func);
-    delete pool;
+    poll->add(func);
+    delete poll;
     return 0;
 }

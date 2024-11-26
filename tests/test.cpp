@@ -76,11 +76,11 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    ThreadPool *pool = new ThreadPool(threads);
+    ThreadPool *poll = new ThreadPool(threads);
     std::function<void()> func = std::bind(oneClient, msgs, wait);
     for(int i = 0; i < threads; ++i){
-        pool->add(func);
+        poll->add(func);
     }
-    delete pool;
+    delete poll;
     return 0;
 }
