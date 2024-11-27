@@ -4,7 +4,6 @@
 
 #include <vector>
 #include <sys/epoll.h>
-#include <memory>
 
 class Channel;
 class Epoller

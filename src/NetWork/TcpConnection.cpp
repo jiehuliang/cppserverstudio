@@ -4,6 +4,8 @@
 #include "common.h"
 #include "EventLoop.h"
 
+#include "CurrentThread.h"
+#include <memory>
 #include <unistd.h>
 #include <assert.h>
 #include <iostream>
@@ -18,7 +20,6 @@ TcpConnection::TcpConnection(EventLoop *loop, int connfd, int connid): connfd_(c
         channel_ = std::unique_ptr<Channel>(new Channel(connfd, loop));
         channel_->EnableET();
         channel_->set_read_callback(std::bind(&TcpConnection::HandleMessage, this));
-        channel_->EnableRead();
     }
     read_buf_ = std::unique_ptr<Buffer>(new Buffer());
     send_buf_ = std::unique_ptr<Buffer>(new Buffer());
@@ -28,20 +29,32 @@ TcpConnection::~TcpConnection(){
     ::close(connfd_);
 }
 
-void TcpConnection::set_close_callback(std::function<void(int)> const &fn) { 
+void TcpConnection::ConnectionEstablished(){
+    state_ = ConnectionState::Connected;
+    channel_->Tie(shared_from_this());
+    channel_->EnableRead();
+    if (on_connect_){
+        on_connect_(shared_from_this());
+    }
+}
+
+void TcpConnection::ConnectionDestructor(){
+    //std::cout << CurrentThread::tid() << " TcpConnection::ConnectionDestructor" << std::endl;
+    // 将该操作从析构处，移植该处，增加性能，因为在析构前，当前`TcpConnection`已经相当于关闭了。
+    // 已经可以将其从loop处离开。
+    loop_->DeleteChannel(channel_.get());
+}
+
+void TcpConnection::set_connection_callback(std::function<void(const std::shared_ptr<TcpConnection> &)> const &fn){
+    on_connect_ = std::move(fn);
+}
+void TcpConnection::set_close_callback(std::function<void(const std::shared_ptr<TcpConnection> &)> const &fn) { 
     on_close_ = std::move(fn); 
 }
-void TcpConnection::set_message_callback(std::function<void(TcpConnection *)> const &fn) { 
+void TcpConnection::set_message_callback(std::function<void(const std::shared_ptr<TcpConnection> &)> const &fn) { 
     on_message_ = std::move(fn);
 }
 
-void TcpConnection::HandleMessage(){
-    Read();
-    if (on_message_)
-    {
-        on_message_(this);
-    }
-}
 
 void TcpConnection::HandleClose() {
     //std::cout << CurrentThread::tid() << " TcpConnection::HandleClose" << std::endl;
@@ -49,16 +62,22 @@ void TcpConnection::HandleClose() {
     {
         state_ = ConnectionState::Disconected;
         if(on_close_){
-            on_close_(connfd_);
+            on_close_(shared_from_this());
         }
     }
 }
 
-
+void TcpConnection::HandleMessage(){
+    Read();
+    if (on_message_)
+    {
+        on_message_(shared_from_this());
+    }
+}
 
 EventLoop *TcpConnection::loop() const { return loop_; }
-int TcpConnection::id() const { return connid_; }
 int TcpConnection::fd() const { return connfd_; }
+int TcpConnection::id() const { return connid_; }
 TcpConnection::ConnectionState TcpConnection::state() const { return state_; }
 void TcpConnection::set_send_buf(const char *str) { send_buf_->set_buf(str); }
 Buffer *TcpConnection::read_buf(){ return read_buf_.get(); }

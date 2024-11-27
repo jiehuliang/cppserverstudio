@@ -14,6 +14,7 @@ class Channel {
         ~Channel();
 
         void HandleEvent() const; // 处理事件
+        void HandleEventWithGuard() const;
         void EnableRead();  // 允许读
         void EnableWrite(); // 允许写
         void EnableET(); // 以ET形式触发
@@ -31,6 +32,8 @@ class Channel {
         void set_read_callback(std::function<void()> const &callback);// 设置回调函数
         void set_write_callback(std::function<void()> const &callback);
 
+        void Tie(const std::shared_ptr<void> &ptr); // 设定tie
+     
     private:
         int fd_;
         EventLoop *loop_;
@@ -40,6 +43,9 @@ class Channel {
         bool in_epoll_{false};
         std::function<void()> read_callback_;
         std::function<void()> write_callback_;
+
+        bool tied_;
+        std::weak_ptr<void> tie_;
 
 };
 
