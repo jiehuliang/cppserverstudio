@@ -3,7 +3,7 @@
 #include "Channel.h"
 #include "common.h"
 #include "EventLoop.h"
-
+#include "HttpContext.h"
 #include "CurrentThread.h"
 #include <memory>
 #include <unistd.h>
@@ -23,9 +23,11 @@ TcpConnection::TcpConnection(EventLoop *loop, int connfd, int connid): connfd_(c
     }
     read_buf_ = std::unique_ptr<Buffer>(new Buffer());
     send_buf_ = std::unique_ptr<Buffer>(new Buffer());
+    context_ = std::unique_ptr<HttpContext>();
 }
 
 TcpConnection::~TcpConnection(){
+    //loop_->DeleteChannel(channel_.get());
     ::close(connfd_);
 }
 
@@ -74,6 +76,7 @@ void TcpConnection::HandleMessage(){
         on_message_(shared_from_this());
     }
 }
+
 
 EventLoop *TcpConnection::loop() const { return loop_; }
 int TcpConnection::fd() const { return connfd_; }
@@ -150,3 +153,5 @@ void TcpConnection::WriteNonBlocking(){
         data_left -= bytes_write;
     }
 }
+
+HttpContext *TcpConnection::context() const { return context_.get(); }

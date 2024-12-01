@@ -62,7 +62,7 @@ endif ()
 
 #设置子目录
 #Set subdirectories
-set(SUB_DIR_LIST "Util" "NetWork" "Event" "Thread")
+set(SUB_DIR_LIST "Util" "NetWork" "Event" "Thread" "http")
 
 foreach(SUB_DIR ${SUB_DIR_LIST})
     #遍历源文件
@@ -111,7 +111,6 @@ add_subdirectory(tests)
 ##########################################
 string(CONCAT PINE_FORMAT_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src,"
-        "${CMAKE_CURRENT_SOURCE_DIR}/test,"
         )
 
 # runs clang format and updates files in place.
@@ -131,8 +130,6 @@ add_custom_target(format ${PINE_BUILD_SUPPORT_DIR}/run_clang_format.py
 file(GLOB_RECURSE PINE_LINT_FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
         )
 
 add_custom_target(cpplint echo '${SRC_LIST}' | xargs -n12 -P8
