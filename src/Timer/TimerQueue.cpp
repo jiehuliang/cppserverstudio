@@ -9,9 +9,10 @@
 #include <sys/timerfd.h>
 #include <assert.h>
 #include <iostream>
+#include <unistd.h>
 TimerQueue::TimerQueue(EventLoop *loop) :loop_(loop){
 	CreateTimerfd();
-	channel_ = std::unique_ptr<Channel>(new Channel(timerfd,loop_));
+	channel_ = std::unique_ptr<Channel>(new Channel(timerfd_,loop_));
 	channel_->set_read_callback(std::bind(&TimerQueue::HandleRead,this));
 	channel_->EnableRead();
 }
@@ -23,7 +24,7 @@ void TimerQueue::CreateTimerfd(){
 }
 TimerQueue::~TimerQueue(){
 	loop_->DeleteChannel(channel_.get());
-	close(timerfd_);
+	::close(timerfd_);
 	for(const auto& entry : timers_){	
 		delete entry.second;
 	}
@@ -76,18 +77,19 @@ void TimerQueue::ResetTimers(){
 			ResetTimerFd(timers_.begin()->second);
 	}
 }
-void TimerQueue::ResetTimerFd(Timer *timer){
+void TimerQueue::ResetTimerFd(Timer* timer) {
 	struct itimerspec new_;
 	struct itimerspec old_;
-	memset(&new_,'\0',sizeof(new_));
-	memset(&old_,'\0',sizeof(old_));
+	memset(&new_, '\0', sizeof(new_));
+	memset(&old_, '\0', sizeof(old_));
 	int64_t micro_seconds_dif = timer->expiration().microseconds() - TimeStamp::Now().microseconds();
-	if (micro_seconds_dif < 100){
+	if (micro_seconds_dif < 100) {
 		micro_seconds_dif = 100;
 	}
 	new_.it_value.tv_sec = static_cast<time_t>(micro_seconds_dif / kMicrosecond2Second);
-	new_.it_value.tv_nsec = static_cast<long>((micro_seconds_dif %  kMicrosecond2Second) * 1000);
-	
-	int ret = ::timerfd_settime(timerfd_,0,&new_,&old_);
+	new_.it_value.tv_nsec = static_cast<long>((micro_seconds_dif % kMicrosecond2Second) * 1000);
+
+	int ret = ::timerfd_settime(timerfd_, 0, &new_, &old_);
 	assert(ret != -1);
 	(void)ret;
+}

@@ -11,7 +11,7 @@
 
 
 TcpServer::TcpServer(EventLoop *loop, const char * ip, const int port): main_reactor_(loop), next_conn_id_(1){
-    // ∩∩?“?¯reactor
+    //
     acceptor_ = std::unique_ptr<Acceptor>(new Acceptor(main_reactor_, ip, port));
     std::function<void(int)> cb = std::bind(&TcpServer::HandleNewConnection, this, std::placeholders::_1);
     acceptor_->set_newconnection_callback(cb);
@@ -44,16 +44,16 @@ inline void TcpServer::HandleNewConnection(int fd){
     std::function<void(const std::shared_ptr<TcpConnection> &)> cb = std::bind(&TcpServer::HandleClose, this, std::placeholders::_1);
     conn->set_connection_callback(on_connect_);
 
-    // ??connection﹞?????Channel米?tie,???車??那y
+    //
     conn->set_close_callback(cb);
     conn->set_message_callback(on_message_);
     connectionsMap_[fd] = conn;
-    // ﹞???id
+    //
     ++next_conn_id_;
     if(next_conn_id_ == 1000){
         next_conn_id_ = 1;
     }
-    // ?a那??角足y?芍那??t
+    //
     conn->ConnectionEstablished();
 }
 

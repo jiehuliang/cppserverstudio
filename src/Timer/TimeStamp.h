@@ -1,8 +1,8 @@
 #ifndef TIMESTAMP_H
 #define TIMESTAMP_H
 #include <stdio.h>
+#include <time.h>
 #include <sys/time.h>
-
 #include <string>
 
 const int kMicrosecond2Second = 1000 * 1000;

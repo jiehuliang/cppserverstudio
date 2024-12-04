@@ -9,6 +9,8 @@
 #include <functional>
 #include <vector>
 class Epoller;
+class TimeStamp;
+class TimerQueue;
 class EventLoop
 {
 public:
@@ -20,6 +22,10 @@ public:
     void UpdateChannel(Channel *ch);
     void DeleteChannel(Channel *ch);
 
+    //定时器功能
+    void RunAt(TimeStamp timestamp, std::function<void()> const& cb);
+    void RunAfter(double wait_time, std::function<void()>const& cb);
+    void RunEvery(double interval,  std::function<void()>const& cb);
 
     // 运行队列中的任务
     void DoToDoList();
@@ -46,6 +52,8 @@ private:
 
     bool calling_functors_;
     pid_t tid_;
+
+    std::unique_ptr<TimerQueue> timer_queue_;
 };
 
 #endif // EVENTLOOP_H
