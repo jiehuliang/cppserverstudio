@@ -10,7 +10,7 @@ namespace CurrentThread
     __thread int t_formattedTidLength;
 
     pid_t gettid() {
-        // ²»Ê¹ÓÃstd::this_thread::get_id()£¬ËüºÃÏñ²¢²»ÊÇÎ¨Ò»µÄ
+        // ä¸ä½¿ç”¨std::this_thread::get_id()ï¼Œå®ƒå¥½åƒå¹¶ä¸æ˜¯å”¯ä¸€çš„
         return static_cast<int>(syscall(SYS_gettid));
     }
     void CacheTid(){

@@ -9,8 +9,8 @@
 #include <functional>
 #include <vector>
 class Epoller;
-class TimeStamp;
 class TimerQueue;
+class TimeStamp;
 class EventLoop
 {
 public:

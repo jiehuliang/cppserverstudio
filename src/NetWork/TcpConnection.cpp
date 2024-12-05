@@ -4,6 +4,7 @@
 #include "common.h"
 #include "EventLoop.h"
 #include "HttpContext.h"
+#include "TimeStamp.h"
 #include "CurrentThread.h"
 #include <memory>
 #include <unistd.h>
@@ -43,7 +44,7 @@ void TcpConnection::ConnectionEstablished(){
 void TcpConnection::ConnectionDestructor(){
     //std::cout << CurrentThread::tid() << " TcpConnection::ConnectionDestructor" << std::endl;
     // 将该操作从析构处，移植该处，增加性能，因为在析构前，当前`TcpConnection`已经相当于关闭了。
-    // 已经可以将其从loop处离开。
+    // 已经可以将其从loop处离开
     loop_->DeleteChannel(channel_.get());
 }
 
@@ -155,3 +156,9 @@ void TcpConnection::WriteNonBlocking(){
 }
 
 HttpContext *TcpConnection::context() const { return context_.get(); }
+
+TimeStamp TcpConnection::timestamp() const { return timestamp_; }
+
+void TcpConnection::UpdateTimeStamp(TimeStamp now){
+    timestamp_ = now;
+}

@@ -5,13 +5,14 @@
 #include <vector>
 #include <memory>
 #include <functional>
-#include "TimeStamp.h"
 #include "common.h"
+#include "TimeStamp.h"
 
+class Timer;
 class EventLoop;
 class Channel;
-class Timer;
-class TimerQueue {
+class TimerQueue
+{
 public:
 	DISALLOW_COPY_AND_MOVE(TimerQueue)
 	TimerQueue(EventLoop* loop);
