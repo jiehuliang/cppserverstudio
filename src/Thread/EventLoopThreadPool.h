@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EVENTLOOP_THREAD_POOL_H
+#define EVENTLOOP_THREAD_POOL_H
 
 #include "common.h"
 
@@ -33,3 +34,5 @@ class EventLoopThreadPool{
 
         int next_;
 };
+
+#endif  //EVENTLOOP_THREAD_POOL_H
