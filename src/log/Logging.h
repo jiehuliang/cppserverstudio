@@ -49,7 +49,7 @@ private:
 	public:
 		DISALLOW_COPY_AND_MOVE(Impl);
 		using LogLevel = Logger::LogLevel;
-		Impl(Logger::LogLevel level, const SourceFile& file, int line);
+		Impl(Logger::LogLevel level, const SourceFile& source, int line);
 		void FormattedTime();//格式化时间信息
 		void Finish();// 完成格式化，并补充输出源码文件和源码位置
 
@@ -61,7 +61,7 @@ private:
 		int line_;//源代码行数
 		LogStream stream_;//日志缓存流 
 	};
-	Impl impl;
+	Impl impl_;
 };
 
 //全局的日志级别，静态成员函数定义，静态成员函数实现
@@ -71,7 +71,7 @@ inline Logger::LogLevel Logger::logLevel() {
 }
 
 //日志宏
-#define LOG_DEBUG if (Logger::DEBUG <= Logger::DEBUG) \
+#define LOG_DEBUG if (Logger::logLevel() <= Logger::DEBUG) \
 	Logger(__FILE__, __LINE__, Logger::DEBUG, __func__).stream()
 #define LOG_INFO if (Logger::logLevel() <= Logger::INFO) \
 	Logger(__FILE__, __LINE__, Logger::INFO).stream()

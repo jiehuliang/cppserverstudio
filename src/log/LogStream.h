@@ -9,7 +9,7 @@
 #include <iostream>
 
 static const int FixedBufferSize = 4096;
-static const int kMaxNumericSize = 48
+static const int kMaxNumericSize = 48;
 class FixedBuffer {
 public:
 	FixedBuffer();
@@ -27,7 +27,7 @@ public:
 	const char* end() const;//获取末端地址
 	void clear();
 private:
-	char buffer_[FixedBufferSize];
+	char data_[FixedBufferSize];
 	char* cur_;
 };
 
@@ -50,7 +50,8 @@ public:
 	self& operator<<(unsigned short num);
 	self& operator<<(int num);
 	self& operator<<(unsigned int num);
-	self& operator<<(long num);;
+	self& operator<<(long num);
+    self& operator<<(unsigned long num);
 	self& operator<<(long long num);
 	self& operator<<(unsigned long long num);
 
@@ -63,10 +64,10 @@ public:
 	self& operator<<(const char* str);
 
 	//标准字符串std::string输出到缓冲区
-	self& operator<<(const std::string& str);
+	self& operator<<(const std::string& v);
 private:
 	template <typename T>
-	void formatInteger(T val);
+	void formatInteger(T value);
 
 	Buffer buffer_;
 };
@@ -95,7 +96,7 @@ public:
 	template<typename T>
 	Fmt(const char* fmt, T val);
 
-	const chat* data() const { return buf_; }
+	const char* data() const { return buf_; }
 	
 	int length() const { return length_; }
 private:

@@ -8,7 +8,7 @@
 #include <memory>
 #include <assert.h>
 #include <iostream>
-
+#include "Logging.h"
 
 TcpServer::TcpServer(EventLoop *loop, const char * ip, const int port): main_reactor_(loop), next_conn_id_(1){
     //
@@ -59,12 +59,11 @@ inline void TcpServer::HandleNewConnection(int fd){
 
 
 inline void TcpServer::HandleClose(const std::shared_ptr<TcpConnection> & conn){
-    std::cout <<  CurrentThread::tid() << " TcpServer::HandleClose"  << std::endl;
     main_reactor_->RunOneFunc(std::bind(&TcpServer::HandleCloseInLoop, this, conn));
 }
 
 inline void TcpServer::HandleCloseInLoop(const std::shared_ptr<TcpConnection> & conn){
-    std::cout << CurrentThread::tid()  << " TcpServer::HandleCloseInLoop - Remove connection id: " <<  conn->id() << " and fd: " << conn->fd() << std::endl;
+    LOG_INFO << "TcpServer::HandleCloseInLoop - Remove connection [id#" <<  conn->id() << "-fd#" << conn->fd() << "]";
     auto it = connectionsMap_.find(conn->fd());
     assert(it != connectionsMap_.end());
     connectionsMap_.erase(it);

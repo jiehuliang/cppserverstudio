@@ -1,4 +1,4 @@
-#include <static>
+#include <stdio.h>
 #include "LogStream.h"
 
 FixedBuffer::FixedBuffer() :cur_(data_) {};
@@ -15,7 +15,7 @@ const char* FixedBuffer::data() const { return data_;}
 int FixedBuffer::len() const { return static_cast<int>(cur_ - data_); }
 
 char* FixedBuffer::current() { return cur_; }
-int FixedBuffer::avail() const {return static_cast<int>(end() - cur_) }
+int FixedBuffer::avail() const {return static_cast<int>(end() - cur_); }
 void FixedBuffer::add(int len) { cur_ += len; }
 
 void FixedBuffer::reset() { cur_ = data_; }
@@ -23,7 +23,7 @@ void FixedBuffer::clear() {memset(data_, 0 , sizeof(data_)); }
 const char* FixedBuffer::end() const { return data_ + sizeof(data_); }
 
 LogStream::LogStream() {}
-LogStream:;~LogStream() {}
+LogStream::~LogStream() {}
 
 void LogStream::append(const char* data,int len) {
 	buffer_.append(data,len);
@@ -36,7 +36,7 @@ void LogStream::resetBuffer() {
 	buffer_.reset();
 }
 
-LogStream& LogStream::operator<<(const bool v) {
+LogStream& LogStream::operator<<( bool v) {
 	buffer_.append(v ? "1" : "0", 1);
 	return *this;
 }
@@ -75,7 +75,7 @@ LogStream& LogStream::operator<<(unsigned long long num) {
 
 //浮点类型数据转换成字符串
 LogStream& LogStream::operator<<(const float& num) {
-	return (*this) << static_cast<double>(num)
+	return (*this) << static_cast<const double>(num);
 }
 
 LogStream& LogStream::operator<<(const double& num) {
