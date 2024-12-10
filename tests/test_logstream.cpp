@@ -5,6 +5,7 @@ int main(){
     LogStream os;
     os << "hello world";
     Logger(__FILE__, __LINE__, Logger::INFO).stream() << "hello world";
+    Logger(__FILE__, __LINE__, Logger::INFO).stream() << "hello! world!";
     std::cout << os.buffer().data() << std::endl;
     os.resetBuffer();
 

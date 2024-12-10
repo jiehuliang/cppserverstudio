@@ -9,8 +9,11 @@
 #include <iostream>
 
 static const int FixedBufferSize = 4096;
+static const int FixedLargeBufferSize = 4096 * 1000;
 static const int kMaxNumericSize = 48;
+template <int SIZE>
 class FixedBuffer {
+	//修改成模板类，方便后端和前端的不同Buffer大小
 public:
 	FixedBuffer();
 	~FixedBuffer();
@@ -27,7 +30,7 @@ public:
 	const char* end() const;//获取末端地址
 	void clear();
 private:
-	char data_[FixedBufferSize];
+	char data_[SIZE];
 	char* cur_;
 };
 
@@ -35,7 +38,7 @@ class LogStream {
 public:
 	DISALLOW_COPY_AND_MOVE(LogStream);
 	using self = LogStream;
-	using Buffer = FixedBuffer;
+	using Buffer = FixedBuffer<FixedBufferSize>;
 
 	LogStream();
 	~LogStream();
