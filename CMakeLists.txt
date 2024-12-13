@@ -62,7 +62,7 @@ endif ()
 
 #设置子目录
 #Set subdirectories
-set(SUB_DIR_LIST "Util" "NetWork" "Event" "Thread" "http")
+set(SUB_DIR_LIST "Util" "NetWork" "Event" "Timer" "Thread" "http" "log")
 
 foreach(SUB_DIR ${SUB_DIR_LIST})
     #遍历源文件
