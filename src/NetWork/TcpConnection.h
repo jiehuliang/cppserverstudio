@@ -38,7 +38,6 @@ public:
     void set_message_callback(std::function<void(const std::shared_ptr<TcpConnection> &)> const &fn); 
 
     // …Ë∂®send buf
-    void set_send_buf(const char *str); 
     Buffer *read_buf();
     Buffer *send_buf();
 

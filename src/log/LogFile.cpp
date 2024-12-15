@@ -36,7 +36,7 @@ void LogFile::Write(const char* data, int len) {
 	//更新当前状态
 	if (len != 0) {
 		lastwrite_ = now;
-		writtenn_bytes_ += len;
+        written_bytes_ += len;
 	}
 	//判断是否需要Flush
 	if (lastwrite_ - lastflush_ > FlushInterval) {

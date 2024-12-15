@@ -11,19 +11,19 @@ private:
 	int count_;
 
 public:
-	DISALLOW_MOVE_AND_COPY(Latch);
+	DISALLOW_COPY_AND_MOVE(Latch);
 
 	explicit Latch(int count) : count_(count) {}
 	void wait() {
 		std::unique_lock<std::mutex> lock(mutex_);
-		while (count > 0) {
+		while (count_ > 0) {
 			conv_.wait(lock);
 		}
 	}
 
 	void notify() {
 		std::unique_lock<std::mutex> lock(mutex_);
-		--counnt_;
+		--count_;
 		if (count_ == 0) {
 			conv_.notify_all();
 		}

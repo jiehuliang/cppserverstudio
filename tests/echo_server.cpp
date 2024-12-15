@@ -52,8 +52,8 @@ void EchoServer::onMessage(const std::shared_ptr<TcpConnection> & conn){
     // std::cout << CurrentThread::tid() << " EchoServer::onMessage" << std::endl;
     if (conn->state() == TcpConnection::ConnectionState::Connected)
     {
-        std::cout << CurrentThread::tid() << "Message from clent " << conn->read_buf()->c_str() << std::endl;
-        conn->Send(conn->read_buf()->c_str());
+        std::cout << CurrentThread::tid() << "Message from clent " << conn->read_buf()->beginread()<< std::endl;
+        conn->Send(conn->read_buf()->beginread(), conn->read_buf()->readablebytes());
         conn->HandleClose();
     }
 }

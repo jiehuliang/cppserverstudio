@@ -173,8 +173,8 @@ const char* FixedBuffer<SIZE>::end() const { return data_ + sizeof(data_); }
 
 template<int SIZE>
 void FixedBuffer<SIZE>::bzero() {
-	memset(data_, 0, sizeof(data_)); 
-	cur_ = data_;
+    memset(data_, '\0', sizeof(data_));
+    cur_ = data_;
 }
 
 
