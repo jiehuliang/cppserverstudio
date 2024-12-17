@@ -20,7 +20,7 @@ void HttpServer::HttpDefaultCallBack(const HttpRequest& request, HttpResponse *r
 }
 
 HttpServer::HttpServer(EventLoop * loop, const char *ip, const int port, bool auto_close_conn) : loop_(loop), auto_close_conn_(auto_close_conn) {
-    server_ = std::unique_ptr<TcpServer>(new TcpServer(loop_, ip, port));
+	server_ = std::unique_ptr<TcpServer>(new TcpServer(loop_, ip, port));
     server_->set_connection_callback(
         std::bind(&HttpServer::onConnection, this, std::placeholders::_1));
 

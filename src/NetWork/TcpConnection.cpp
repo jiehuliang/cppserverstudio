@@ -6,7 +6,7 @@
 #include "HttpContext.h"
 #include "TimeStamp.h"
 #include "Logging.h"
-#include "CurrentThread.h"
+#include <thread>
 #include <memory>
 #include <unistd.h>
 #include <assert.h>
@@ -22,10 +22,11 @@ TcpConnection::TcpConnection(EventLoop *loop, int connfd, int connid): connfd_(c
         channel_ = std::unique_ptr<Channel>(new Channel(connfd, loop));
         channel_->EnableET();
         channel_->set_read_callback(std::bind(&TcpConnection::HandleMessage, this));
+        channel_->set_write_callback(std::bind(&TcpConnection::HandleWrite, this));
     }
     read_buf_ = std::unique_ptr<Buffer>(new Buffer());
     send_buf_ = std::unique_ptr<Buffer>(new Buffer());
-    context_ = std::unique_ptr<HttpContext>();
+    context_ = std::unique_ptr<HttpContext>(new HttpContext());
 }
 
 TcpConnection::~TcpConnection(){
@@ -61,7 +62,7 @@ void TcpConnection::set_message_callback(std::function<void(const std::shared_pt
 
 
 void TcpConnection::HandleClose() {
-    //std::cout << CurrentThread::tid() << " TcpConnection::HandleClose" << std::endl;
+    //std::cout << std::this_thread::get_id() << " TcpConnection::HandleClose" << std::endl;
     if (state_ != ConnectionState::Disconected)
     {
         state_ = ConnectionState::Disconected;
@@ -77,6 +78,11 @@ void TcpConnection::HandleMessage(){
     {
         on_message_(shared_from_this());
     }
+}
+
+void TcpConnection::HandleWrite() {
+    LOG_INFO << "TcpConnection::HandleWrite";
+    WriteNonBlocking();
 }
 
 
@@ -96,19 +102,48 @@ void TcpConnection::Send(const char *msg){
 } 
 
 void TcpConnection::Send(const char *msg, int len){
-    send_buf_->Append(msg, len);
-    Write();
+    int remaining = len;
+    int send_size = 0;
+
+    //如果此时send_buf_中没有数据，则可以先尝试发送数据
+    if (send_buf_->readablebytes() == 0) {
+        //强制类型转换，方便remaining操作
+        send_size = static_cast<int>(write(connfd_, msg, len));
+
+        if (send_size >= 0) {
+            //说明发送了部分数据
+            remaining -= send_size;
+        }
+        else if ((send_size == -1) && 
+            ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
+            //说明此时TCP缓冲区是满的，没有办法写入，什么都不做
+            send_size = 0;//说明实际上没有发送数据
+        }
+        else {
+            LOG_ERROR << "TcpConnection::Send - TcpConnection Send Error";
+            return;
+        }
+    }
+    //将剩余的数据加入到send_buf中，等待后续发送。
+    assert(remaining <= len);
+    if (remaining > 0) {
+        send_buf_->Append(msg + send_size, remaining);
+
+        //到达这一步时
+        //1.还没有监听写事件，在此时进行了监听
+        //2.监听了写事件，并且已经触发了，此时再次监听，强制触发一次，
+        // 如果强制触发失败，仍然可以等待后续TCP缓冲区可写。
+        channel_->EnableWrite();
+    }
 }
 
 void TcpConnection::Read()
 {
-    read_buf_->RetrieveAll();
     ReadNonBlocking();
 }
 
 void TcpConnection::Write(){
     WriteNonBlocking();
-    send_buf_->RetrieveAll();
 }
 
 
@@ -136,26 +171,21 @@ void TcpConnection::ReadNonBlocking(){
 }
 
 void TcpConnection::WriteNonBlocking(){
-    char buf[send_buf_->readablebytes()];
-    memcpy(buf, send_buf_->beginread(), send_buf_->readablebytes());
-    int data_size = send_buf_->readablebytes();
-    int data_left = data_size;
+    int remaining = send_buf_->readablebytes();
 
-    while(data_left > 0){
-        ssize_t bytes_write = write(connfd_, buf + data_size - data_left, data_left);
-        if(bytes_write == -1 && errno == EINTR){
-            //std::cout << "continue writing" << std::endl;
-            continue;
-        }
-        if(bytes_write == -1 && errno == EAGAIN){
-            break;
-        }
-        if(bytes_write == -1){
-            HandleClose();
-            break;
-        }
-        data_left -= bytes_write;
+    int send_size = static_cast<int>(write(connfd_, send_buf_->Peek(), remaining));
+    if ((send_size == -1) && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
+        //说明此时TCP缓冲区是满的，没有办法写入，什么都不做
+        //主要时防止，在Send时write后监听EPOLLOUT，但是TCP缓冲区还是满的，
+        send_size = 0;
     }
+    else if (send_size == -1) {
+        LOG_ERROR << "TcpConnection::Send - TcpConnection Send Error";
+        //return;
+    }
+
+    remaining -= send_size;
+    send_buf_->Retrieve(send_size);
 }
 
 HttpContext *TcpConnection::context() const { return context_.get(); }
