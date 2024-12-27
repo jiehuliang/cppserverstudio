@@ -10,6 +10,53 @@ project ("cppserverstudio")
 # Enable C++11
 set(CMAKE_CXX_STANDARD 11)
 
+
+
+#设置子目录
+#Set subdirectories
+set(SUB_DIR_LIST "Util" "NetWork" "Event" "Timer" "Thread" "http" "log")
+
+foreach(SUB_DIR ${SUB_DIR_LIST})
+    #遍历源文件
+    #Traverse source file
+    aux_source_directory(src/${SUB_DIR} SRC_LIST)
+    include_directories(src/${SUB_DIR})
+endforeach()
+
+#安装目录
+#Installation directory
+if(WIN32)
+    set(INSTALL_PATH_LIB $ENV{HOME}/${PROJECT_NAME}/lib)
+    set(INSTALL_PATH_INCLUDE $ENV{HOME}/${PROJECT_NAME}/include)
+else()
+    set(INSTALL_PATH_LIB lib)
+    set(INSTALL_PATH_INCLUDE include)
+endif()
+
+if(WIN32)
+    set(LINK_LIB_LIST WS2_32 Iphlpapi shlwapi)
+else()
+    set(LINK_LIB_LIST)
+endif()
+
+#编译动态库
+#Compile dynamic library
+if(NOT IOS AND NOT ANDROID AND NOT WIN32)
+    add_library(${PROJECT_NAME}_shared SHARED ${SRC_LIST})
+    target_include_directories(${PROJECT_NAME}_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_link_libraries(${PROJECT_NAME}_shared ${LINK_LIB_LIST})
+    set_target_properties(${PROJECT_NAME}_shared PROPERTIES OUTPUT_NAME "${PROJECT_NAME}")
+    set_target_properties(${PROJECT_NAME}_shared PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
+    install(TARGETS ${PROJECT_NAME}_shared  ARCHIVE DESTINATION ${INSTALL_PATH_LIB} LIBRARY DESTINATION ${INSTALL_PATH_LIB})
+endif()
+
+#编译静态库
+#Compile static library
+add_library(${PROJECT_NAME}_static STATIC ${SRC_LIST})
+
+
+add_subdirectory(tests)
+
 # Expected directory structure.
 set(PINE_BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build_support")
 set(PINE_CLANG_SEARCH_PATH "/usr/bin/" "/usr/local/bin" "/usr/lib/llvm-18/bin/" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm-18/bin" "/usr/local/Cellar/llvm/8.0.1/bin")
@@ -59,51 +106,6 @@ else ()
 endif ()
 
 #set(CMAKE_MAKE_PROGRAM "/usr/bin/ninja")
-
-#设置子目录
-#Set subdirectories
-set(SUB_DIR_LIST "Util" "NetWork" "Event" "Timer" "Thread" "http" "log")
-
-foreach(SUB_DIR ${SUB_DIR_LIST})
-    #遍历源文件
-    #Traverse source file
-    aux_source_directory(src/${SUB_DIR} SRC_LIST)
-    include_directories(src/${SUB_DIR})
-endforeach()
-
-#安装目录
-#Installation directory
-if(WIN32)
-    set(INSTALL_PATH_LIB $ENV{HOME}/${PROJECT_NAME}/lib)
-    set(INSTALL_PATH_INCLUDE $ENV{HOME}/${PROJECT_NAME}/include)
-else()
-    set(INSTALL_PATH_LIB lib)
-    set(INSTALL_PATH_INCLUDE include)
-endif()
-
-if(WIN32)
-    set(LINK_LIB_LIST WS2_32 Iphlpapi shlwapi)
-else()
-    set(LINK_LIB_LIST)
-endif()
-
-#编译动态库
-#Compile dynamic library
-if(NOT IOS AND NOT ANDROID AND NOT WIN32)
-    add_library(${PROJECT_NAME}_shared SHARED ${SRC_LIST})
-    target_include_directories(${PROJECT_NAME}_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-    target_link_libraries(${PROJECT_NAME}_shared ${LINK_LIB_LIST})
-    set_target_properties(${PROJECT_NAME}_shared PROPERTIES OUTPUT_NAME "${PROJECT_NAME}")
-    set_target_properties(${PROJECT_NAME}_shared PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
-    install(TARGETS ${PROJECT_NAME}_shared  ARCHIVE DESTINATION ${INSTALL_PATH_LIB} LIBRARY DESTINATION ${INSTALL_PATH_LIB})
-endif()
-
-#编译静态库
-#Compile static library
-add_library(${PROJECT_NAME}_static STATIC ${SRC_LIST})
-
-
-add_subdirectory(tests)
 
 ##########################################
 # "make format"
