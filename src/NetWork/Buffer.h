@@ -28,6 +28,7 @@ class Buffer{
         const char* beginwrite() const;
 
         //Ìí¼ÓÊı¾İ
+        void AppendPrepend(const  char* message, int len);
         void Append(const char* message);
         void Append(const char* message, int len);
         void Append(const std::string& message);

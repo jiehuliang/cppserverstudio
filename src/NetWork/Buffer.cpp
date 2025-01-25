@@ -17,6 +17,14 @@ const char* Buffer::beginread() const { return begin() + read_index_; }
 char* Buffer::beginwrite() { return begin() + write_index_; }
 const char* Buffer::beginwrite() const { return begin() + write_index_; }
 
+void Buffer::AppendPrepend(const  char* message, int len) {
+	if (len > prependablebytes()) {
+		return;
+	}
+	std::copy(message, message + len, beginread() - len);
+	read_index_ -= len;
+}
+
 void Buffer::Append(const char* message) {
 	Append(message, static_cast<int>(strlen(message)));
 }

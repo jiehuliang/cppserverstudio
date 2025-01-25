@@ -3,6 +3,32 @@
 #include <stdint.h>
 #include <endian.h>
 #include <string>
+#include "Buffer.h"
+
+/**
+*  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|V=2|P|X|  CC   |M|     PT      |       sequence number         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                           timestamp                           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|           synchronization source (SSRC) identifier            |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|            contributing source (CSRC) identifiers             |
+|                             ....                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|      defined by profile       |           length              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                        extension header                        |
+|                             ....                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                           payload data                         |
+|                             ....                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                           padding data                         |
+|                             ....                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+**/
 
 #pragma pack(push, 1)
 class RtpHeader {
@@ -11,12 +37,12 @@ public:
 	uint32_t version : 2;	/* protocol version */
 	uint32_t padding : 1;	/* padding flag */
 	uint32_t ext : 1;	/* header extension flag */
-	uint32_t cc : 4;	/* CSRC count */
+	uint32_t csrc : 4;	/* CSRC count */
 	uint32_t mark : 1;	/* marker bit */
 	uint32_t pt : 7;	/* payload type */
 
 #else
-	uint32_t cc : 4;	/* CSRC count */
+	uint32_t csrc : 4;	/* CSRC count */
 	uint32_t ext : 1;	/* header extension flag */
 	uint32_t padding : 1;	/* padding flag */
 	uint32_t version : 2;	/* protocol version */
@@ -26,18 +52,54 @@ public:
 	uint32_t seq : 16;	/* sequence number */
 	uint32_t timestamp;	/* timestamp */
 	uint32_t ssrc;	/* synchronization source */
+	// 负载，如果有csrc和ext，前面为 4 * csrc + (4 + 4 * ext_len)  [AUTO-TRANSLATED:fcd87b19]
+	// Payload, if csrc and ext exist, the front is 4 * csrc + (4 + 4 * ext_len)
+	uint8_t payload;
+
+public:
+	size_t getCsrcSize() const;
+	uint8_t* getCsrcData();
+
+	size_t getExtSize() const;
+	uint16_t getExtReserved() const;
+	uint8_t* getExtData();
+
+	uint8_t* getPayloadData();
+	ssize_t getPayloadSize(size_t rtp_size) const;
+
+private:
+	size_t getPayloadOffset() const;
+	size_t getPaddingSize(size_t rtp_size) const;
+
 };
+#pragma pack(pop)
 
 class RtpPacket {
 public:
+	using Ptr = std::shared_ptr<RtpPacket>;
 	enum {RtpVersion = 2, RtpHeaderSize = 12, RtpTcpHeaderSize = 4};
-	RtpHeader rtpheader;
-	uint32_t csrc[16]; //最多16个csrc
-	const void* externsion;	//extension(valid only if rtp.ext =1)
-	uint16_t extlen;	//extesion length in bytes
-	uint16_t reserved;	//extension reserved
-	const void* payload; //rtp payload
-	int payloadlen;	//payload length in bytes
+
+	// Get the rtp header
+	RtpHeader* getHeader();
+	const RtpHeader* getHeader() const;
+
+	//主机字节序的seq
+	//Host byte order seq
+	uint16_t getSeq() const;
+	uint32_t getStamp() const;
+	// Host byte order timestamp, converted to milliseconds
+	uint64_t getStampMS(bool ntp = true) const;
+	// Host byte order ssrc
+	uint32_t getSSRC() const;
+	// Valid payload, skip csrc, ext
+	uint8_t* getPayload();
+	// Valid payload length, excluding csrc, ext, padding
+	size_t getPayloadSize() const;
+
+	static Ptr CreateRtp();
+
+private:
+	std::shared_ptr<Buffer> data_;
 };
 
 class Nalu {
