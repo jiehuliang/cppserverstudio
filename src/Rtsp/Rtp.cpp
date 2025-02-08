@@ -83,6 +83,32 @@ RtpPacket::Ptr RtpPacket::CreateRtp() {
 	return rtp;
 }
 
+uint16_t RtpPacket::getSeq() const {
+	return ntohs(getHeader()->seq);
+}
+
+uint32_t RtpPacket::getStamp() const {
+	return ntohl(getHeader()->timestamp);
+}
+
+uint64_t RtpPacket::getStampMS(bool ntp) const {
+
+}
+
+uint32_t RtpPacket::getSSRC() const {
+	return ntohl(getHeader()->ssrc);
+}
+
+uint8_t* RtpPacket::getPayload() {
+	return getHeader()->getPayloadData();
+}
+
+size_t RtpPacket::getPayloadSize() const {
+	return (size_t)getHeader()->getPayloadSize(data_->readablebytes());
+}
+
+
+
 
 
 /*

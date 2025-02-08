@@ -3,5 +3,10 @@
 
 
 int H264RtpDecoder::inputRtp(const RtpPacket::Ptr& rtp) {
+	auto seq = rtp->getSeq();
+	auto ret = decodeRtp(rtp);
+}
 
+int H264RtpDecoder::decodeRtp(const RtpPacket::Ptr& rtp) {
+	
 }

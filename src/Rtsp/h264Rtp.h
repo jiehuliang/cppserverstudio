@@ -9,7 +9,7 @@ public:
 	int inputRtp(const RtpPacket::Ptr& rtp);
 
 private:
-	int decodeRtp();
+	int decodeRtp(const RtpPacket::Ptr& rtp);
 
 	bool singleFrame();
 	bool unpackStapA();
