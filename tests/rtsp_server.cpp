@@ -19,4 +19,5 @@ int main(int argc, char* argv[]) {
 	EventLoop* loop = new EventLoop();
 	RtspServer* rtspServer = new RtspServer(loop, "127.0.0.1", port, true);
 	rtspServer->SetThreadNums(size);
+    rtspServer->start();
 }

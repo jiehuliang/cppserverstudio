@@ -47,6 +47,7 @@ void Acceptor::Bind(const char *ip, const int port){
     addr.sin_port = htons(port);
     if(::bind(listenfd_, (struct sockaddr *)&addr, sizeof(addr))==-1){
         LOG_ERROR << "Failed to Bind ["  << ip << ":" << port << "]";
+        exit(EXIT_FAILURE);
     }
 }
 

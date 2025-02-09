@@ -16,9 +16,9 @@ public:
 	RtspServer(EventLoop* loop,const char* ip,const int port,bool auto_close_conn);
 	~RtspServer();
 
-	void connection_callback(const std::shared_ptr<TcpConnection>& conn);
+	void OnConnection(const std::shared_ptr<TcpConnection>& conn);
 
-	void message_callback(const std::shared_ptr<TcpConnection>& conn);
+	void OnMessage(const std::shared_ptr<TcpConnection>& conn);
 
 	void SetThreadNums(int num);
 

@@ -26,18 +26,24 @@ int main(){
 					  "Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7\r\n"
 					  "Cookie: username-127-0-0-1-8888=\"2|1:0|10:1681994652|23:username-127-0-0-1-8888|44:Yzg5ZjA1OGU0MWQ1NGNlMWI2MGQwYTFhMDAxYzY3YzU=|6d0b051e144fa862c61464acf2d14418d9ba26107549656a86d92e079ff033ea\"; _xsrf=2|dd035ca7|e419a1d40c38998f604fb6748dc79a10|168199465\r\n"
 					  "\r\n";
+
+	std::string rtspStr = "OPTIONS rtsp://127.0.0.1:5542/live/123 RTSP/1.0\r\n"
+						  "CSeq: 2\r\n"
+						  "User - Agent: LibVLC / 3.0.17.4 (LIVE555 Streaming Media v2016.11.28)\r\n"
+						  "\r\n";
+
 	//std::cout << str.size() << std::endl;
-    context->ParaseRequest(str.c_str(), str.size());
+    context->ParaseRequest(rtspStr.c_str(), rtspStr.size());
     HttpRequest * request = context->request();
 
-    std::cout << "method: " << request->GetMethodString() << std::endl << std::endl;
+    std::cout << "method: " << request->method() << std::endl << std::endl;
     std::cout << "url: " << request->url() << std::endl << std::endl;
 	std::cout <<"request_params: " << std::endl;
     for(auto it:request->request_params()){
         std::cout << "key:   " << it.first <<  std::endl <<"value: " << it.second << std::endl << std::endl;
     }
     std::cout << "protocol: " << request->protocol() << std::endl << std::endl;
-    std::cout << "version: " << request->GetVersionString() << std::endl << std::endl;
+    std::cout << "version: " << request->version() << std::endl << std::endl;
 
 	std::cout << "headers: " << std::endl;
 	for (auto it : request->headers())

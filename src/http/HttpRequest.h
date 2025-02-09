@@ -3,34 +3,17 @@
 #include <map>
 
 
-class HttpRequest{
+class HttpRequest {
     public:
-        enum Method
-        {
-            kInvalid = 0,
-            kGet,
-            kPost,
-            kHead,
-            kPut,
-            kDelete
-        };
-        enum Version
-        {
-            kUnknown = 0,
-            kHttp10,
-            kHttp11
-        };
 
         HttpRequest();
         ~HttpRequest();
 
         void SetVersion(const std::string &ver); // http版本
-        Version version() const;
-        std::string GetVersionString() const;
+        std::string version() const;
 
-        bool SetMethod(const std::string &method); // 设定请求方法
-        Method method() const;
-        std::string GetMethodString() const ;
+        void SetMethod(const std::string &method); // 设定请求方法
+        std::string method() const;
 
         void SetUrl(const std::string &url); // 请求路径
         const std::string &url() const;
@@ -50,8 +33,8 @@ class HttpRequest{
         const std::string & body() const;
 
     private:
-        Method method_; // 请求方法
-        Version version_; // 版本
+        std::string method_; // 请求方法
+        std::string version_; // 版本
 
         std::map<std::string, std::string> request_params_; // 请求参数
 

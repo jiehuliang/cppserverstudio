@@ -84,7 +84,7 @@ void HttpServer::SetHttpCallback(const HttpServer::HttpResponseCallback &cb){
 void HttpServer::onRequest(const TcpConnectionPtr &conn, const HttpRequest &request){
     std::string connection_state = request.GetHeader("Connection");
     bool close = (connection_state == "Close" ||
-                  (request.version() == HttpRequest::Version::kHttp10 &&
+                  (request.version() == "1.0" &&
                   connection_state != "keep-alive"));
     HttpResponse response(close);
     response_callback_(request, &response);

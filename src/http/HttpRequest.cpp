@@ -5,82 +5,25 @@
 #include <map>
 #include <iostream>
 
-HttpRequest::HttpRequest() : method_(kInvalid), version_(kUnknown){
+HttpRequest::HttpRequest(){
 };
 
 HttpRequest::~HttpRequest(){};
 
 void HttpRequest::SetVersion(const std::string & ver){
-    if(ver == "1.0"){
-        version_ = Version::kHttp10;
-    }else if(ver == "1.1"){
-        version_ = Version::kHttp11;
-    }else{
-        version_ = Version::kUnknown;
-    }
+    version_ = std::move(ver);
 }
 
-HttpRequest::Version HttpRequest::version() const{
+std::string HttpRequest::version() const{
     return version_;
 }
 
-std::string HttpRequest::GetVersionString() const{
-    std::string ver;
-    if (version_ == Version::kHttp10)
-    {
-        ver = "http1.0";
-    }
-    else if (version_ == Version::kHttp11){
-        ver = "http1.1";
-    }else{
-        ver = "unknown";
-    }
-    return ver;
+void HttpRequest::SetMethod(const std::string &_method){
+    method_ = _method;
 }
 
-bool HttpRequest::SetMethod(const std::string &_method){
-    if(_method == "GET"){
-        method_ = Method::kGet;
-    }else if(_method == "POST"){
-        method_ =  Method::kPost;
-    }else if(_method == "HEAD"){
-        method_ = Method::kHead;
-    }else if(_method == "PUT"){
-        method_ = Method::kPut;
-    }else if(_method == "Delete"){
-        method_ = Method::kDelete;
-    }else{
-        method_ = Method::kInvalid;
-    }
-    return  method_ != Method::kInvalid;
-}
-
-HttpRequest::Method HttpRequest::method() const{
+std::string HttpRequest::method() const{
     return method_;
-}
-std::string HttpRequest::GetMethodString() const{
-    std::string _method;
-    if (method_ == Method::kGet)
-    {
-        _method = "GET";
-    }
-    else if (method_ == Method::kPost)
-    {
-        _method = "POST";
-    }
-    else if (method_ == Method::kHead){
-        _method =  "HEAD";
-    }
-    else if(method_ == Method::kPut){
-        _method = "PUT";
-    }
-    else if (method_ == Method::kDelete)
-    {
-        _method =  "DELETE";
-    }else{
-        _method = "INVALID";
-    }
-    return _method;
 }
 
 void HttpRequest::SetUrl(const std::string &url){

@@ -58,7 +58,7 @@ bool HttpContext::ParaseRequest(const char *begin, int size){
                 }else if(isblank(ch)){
                     // 遇到空格表明，METHOD方法解析结束，当前处于即将解析URL，start进入下一个位置
                     request_->SetMethod(std::string(start, end));
-                    state_ = HttpRequestParaseState::BEFORE_URL;
+                    state_ = HttpRequestParaseState::IN_URL;
                     start = end + 1; // 更新下一个指标的位置
                 }else{
                     state_ = HttpRequestParaseState::kINVALID;
