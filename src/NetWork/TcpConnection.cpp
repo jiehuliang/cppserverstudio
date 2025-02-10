@@ -27,6 +27,7 @@ TcpConnection::TcpConnection(EventLoop *loop, int connfd, int connid): connfd_(c
     read_buf_ = std::unique_ptr<Buffer>(new Buffer());
     send_buf_ = std::unique_ptr<Buffer>(new Buffer());
     context_ = std::unique_ptr<HttpContext>(new HttpContext());
+    session_ = std::unique_ptr<RtspSession>(new RtspSession());
 }
 
 TcpConnection::~TcpConnection(){
@@ -189,6 +190,8 @@ void TcpConnection::WriteNonBlocking(){
 }
 
 HttpContext *TcpConnection::context() const { return context_.get(); }
+
+RtspSession *TcpConnection::session() const { return session_.get(); }
 
 TimeStamp TcpConnection::timestamp() const { return timestamp_; }
 

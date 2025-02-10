@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 #include "TimeStamp.h"
+#include "RtspSession.h"
+
 class Buffer;
 class HttpContext;
 class TcpConnection : public std::enable_shared_from_this<TcpConnection>
@@ -58,6 +60,7 @@ public:
     int fd() const;
     int id() const;
     HttpContext *context() const;
+    RtspSession* session() const;
 
     TimeStamp timestamp() const;
     void UpdateTimeStamp(TimeStamp now);
@@ -86,6 +89,8 @@ private:
     void WriteNonBlocking();
 
     std::unique_ptr<HttpContext> context_;
+
+    std::unique_ptr<RtspSession> session_;
 
     // 需要频繁赋值，使用普通成员变量。
     TimeStamp timestamp_;

@@ -13,7 +13,6 @@ RtspServer::RtspServer(EventLoop* loop,const char* ip,const int port,bool auto_c
 	server_ = std::unique_ptr<TcpServer>(new TcpServer(loop,ip,port));
 	server_->set_connection_callback(std::bind(&RtspServer::OnConnection, this, std::placeholders::_1));
 	server_->set_message_callback(std::bind(&RtspServer::OnMessage,this,std::placeholders::_1));
-
 	LOG_INFO << "RtspServer Listening on [ " << ip << ":" << port << " ]";
 }
 
@@ -44,10 +43,12 @@ void RtspServer::OnMessage(const std::shared_ptr<TcpConnection>& conn) {
 
 	if (context->GetCompleteRequest())
 	{
-		context->request();
+		conn->session()->onWholeRtspPacket(conn,*context->request());
 		context->ResetContextStatus();
 	}
 }
+
+
 
 void RtspServer::SetThreadNums(int num) {
 	server_->SetThreadNums(num);
