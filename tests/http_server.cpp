@@ -11,7 +11,7 @@
 const std::string html = " <font color=\"red\">This is html!</font> ";
 void HttpResponseCallback(const HttpRequest &request, HttpResponse *response)
 {
-    if(request.method() != HttpRequest::Method::kGet){
+    if (request.method() != "GET") {
         response->SetStatusCode(HttpResponse::HttpStatusCode::k400BadRequest);
         response->SetStatusMessage("Bad Request");
         response->SetCloseConnection(true);
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]){
     int port;
     if (argc <= 1)
     {
-        port = 1236;
+        port = 1238;
     }else if (argc == 2){
         port = atoi(argv[1]);
     }else{

@@ -32,19 +32,21 @@ void RtspServer::OnConnection(const std::shared_ptr<TcpConnection>& conn) {
 }
 
 void RtspServer::OnMessage(const std::shared_ptr<TcpConnection>& conn) {
-	auto str = conn->read_buf()->RetrieveAllAsString();
-	HttpContext* context = conn->context();
-	if (!context->ParaseRequest(str))
-	{
-		LOG_INFO << "RtspServer::onMessage : Receive non Rtsp message";
-		conn->Send("Rtsp/1.0 400 Bad Request\r\n\r\n");
-		conn->HandleClose();
-	}
+	if (conn->state() == TcpConnection::ConnectionState::Connected) {
+		auto str = conn->read_buf()->RetrieveAllAsString();
+		HttpContext* context = conn->context();
+		if (!context->ParaseRequest(str))
+		{
+			LOG_INFO << "RtspServer::onMessage : Receive non Rtsp message";
+			conn->Send("Rtsp/1.0 400 Bad Request\r\n\r\n");
+			conn->HandleClose();
+		}
 
-	if (context->GetCompleteRequest())
-	{
-		conn->session()->onWholeRtspPacket(conn,*context->request());
-		context->ResetContextStatus();
+		if (context->GetCompleteRequest())
+		{
+			conn->session()->onWholeRtspPacket(conn, *context->request());
+			context->ResetContextStatus();
+		}
 	}
 }
 

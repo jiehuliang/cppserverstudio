@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <random>
+#include <string>
 
 class Epoller;
 class Channel;
@@ -16,6 +18,8 @@ class HttpContext;
 class HttpRequest;
 class HttpResponse;
  
+
+
 
 // Macros to disable copying and moving
 #define DISALLOW_COPY(cname)     \
@@ -43,5 +47,8 @@ enum RC {
   RC_ACCEPTOR_ERROR,
   RC_UNIMPLEMENTED
 };
+
+std::string makeRandStr(int sz, bool printable = true);
+
 
 #endif //COMMON_H
