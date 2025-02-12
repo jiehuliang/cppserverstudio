@@ -2,6 +2,8 @@
 #include "HttpRequest.h"
 #include "TcpConnection.h"
 
+#include <cinttypes>
+
 
 RtspSession::RtspSession() {}
 
@@ -33,7 +35,12 @@ void RtspSession::handleOptions(const TcpConnectionPtr& conn, const RtspRequest&
 	conn->Send(resp);
 }
 void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest& request) {
-
+	//conn->loop()->RunEvery();
+	getRtspResponse("200 OK",
+		{ "Content-Base", _content_base + "/",
+		 "x-Accept-Retransmit","our-retransmit",
+		 "x-Accept-Dynamic-Rate","1"
+		}, getSdp());
 
 }
 void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& request) {
@@ -113,4 +120,27 @@ void RtspSession::parse(const std::string& url_in) {
 	if (pos != std::string::npos) {
 		url.pop_back();
 	}
+
+	pos = url.find("/");
+	auto host_pos = url.substr(0,pos).rfind(":");
+	if (host_pos == std::string::npos) {
+		_host = url.substr(0, pos);
+		_vhost = _host;
+		return;
+	}
+	_host = url.substr(0, host_pos);
+	sscanf(url.substr(0, pos).data() + host_pos + 1, "%" SCNu16, &_port);
+	_vhost = _host;
+
+	url = url.substr(pos + 1);
+	pos = url.find("/");
+	if (pos == std::string::npos) {
+		_app = url;
+		return;
+	}
+	_app = url.substr(0, pos);
+
+	url = url.substr(pos + 1);
+	pos = url.find("/");
+	_streamid = url;
 }

@@ -1,5 +1,5 @@
 #include "File.h"
-#include "Rtp.h"
+#include "Rtsp.h"
 #include "base64.h"	
 
 #include <cstring>
@@ -42,13 +42,11 @@ void h264_sdp_create(const char* file, const char* ip, uint16_t port,
 	char demo[] =
 		"m=video %d RTP/AVP %d\n"
 		"a=rtpmap:%d H264/%d\n"
-		"a=fmtp:%d profile-level-id=%06X; packetization-mode=%d; sprop-parameter-sets=%s,%s\n"
-		"c=IN IP4 %s";
+		"a=fmtp:%d profile-level-id=%06X; packetization-mode=%d; sprop-parameter-sets=%s,%s\n";
 
-	snprintf(buff, sizeof(buff), demo, port, payload_type,
+	snprintf(buff, sizeof(buff), demo, 0, payload_type,
 		payload_type, time_base,
-		payload_type, profile_level_id, h264_stap_a , str_sps, str_pps,
-		ip);
+		payload_type, profile_level_id, h264_stap_a , str_sps, str_pps);
 
 	printf("h264 sdp:\n%s\n\n", buff);
 	remove(file);
