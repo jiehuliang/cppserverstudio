@@ -3,6 +3,8 @@
 #include <string>
 #include <memory>
 #include <map>
+#include "RtspMediaStream.h"
+#include "Rtsp.h"
 class HttpRequest;
 class TcpConnection;
 
@@ -45,6 +47,11 @@ private:
 	std::string _app;
 	std::string _streamid;
 	std::map<std::string, std::string> _param_strs;
+
+	std::shared_ptr<RtspMediaStream> _stream;
+
+	//推流或拉流客户端采用的rtp传输方式
+	eRtpType _rtp_type = eRtpType::RTP_Invalid;
 };
 
 #endif // RTSP_SESSION_H

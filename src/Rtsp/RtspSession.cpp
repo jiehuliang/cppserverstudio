@@ -1,6 +1,7 @@
 #include "RtspSession.h"
 #include "HttpRequest.h"
 #include "TcpConnection.h"
+#include"common.h"
 
 #include <cinttypes>
 
@@ -36,14 +37,40 @@ void RtspSession::handleOptions(const TcpConnectionPtr& conn, const RtspRequest&
 }
 void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest& request) {
 	//conn->loop()->RunEvery();
-	getRtspResponse("200 OK",
+	_stream = std::make_shared<RtspMediaStream>(_streamid);
+	auto ready = _stream->createFromEs();
+	_sessionid = makeRandStr(12);
+	if (!ready) {
+		conn->Send(getRtspResponse("404 Stream Not Found", { "Connection","Close" }));
+		return;
+	}
+	conn->Send(getRtspResponse("200 OK",
 		{ "Content-Base", _content_base + "/",
 		 "x-Accept-Retransmit","our-retransmit",
 		 "x-Accept-Dynamic-Rate","1"
-		}, getSdp());
+		}, _stream->getSdp()));
 
 }
 void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& request) {
+	if (_rtp_type == eRtpType::RTP_Invalid) {
+		auto transport = request.GetRequestValue("Transport");
+		if (transport.find("TCP") != std::string::npos) {
+			_rtp_type = eRtpType::RTP_TCP;
+		}
+		else if (transport.find("multicast") != std::string::npos) {
+			_rtp_type = eRtpType::RTP_MULTICAST;
+		}
+		else {
+			_rtp_type = eRtpType::RTP_UDP;
+		}
+	}
+
+	switch (_rtp_type) {
+	case eRtpType::RTP_TCP:
+
+	case eRtpType::RTP_UDP:
+	case eRtpType::RTP_MULTICAST:
+	}
 
 }
 
@@ -116,12 +143,7 @@ void RtspSession::parse(const std::string& url_in) {
 		url = url.substr(schema_pos + 3);
 	}
 
-	auto pos = url.find_last_of("/");
-	if (pos != std::string::npos) {
-		url.pop_back();
-	}
-
-	pos = url.find("/");
+	auto pos = url.find("/");
 	auto host_pos = url.substr(0,pos).rfind(":");
 	if (host_pos == std::string::npos) {
 		_host = url.substr(0, pos);
@@ -141,6 +163,8 @@ void RtspSession::parse(const std::string& url_in) {
 	_app = url.substr(0, pos);
 
 	url = url.substr(pos + 1);
-	pos = url.find("/");
+	if (url.back() == '/') {
+		url.pop_back();
+	}
 	_streamid = url;
 }

@@ -5,6 +5,14 @@
 #include <string>
 #include "Buffer.h"
 
+
+typedef enum {
+	RTP_Invalid = -1,
+	RTP_TCP = 0,
+	RTP_UDP = 1,
+	RTP_MULTICAST = 2,
+} eRtpType;
+
 /**
 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
