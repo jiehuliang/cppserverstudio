@@ -9,7 +9,7 @@ public:
     ~RtspMediaStream();
 
     // Create a media stream from .264 or .h264 file
-    bool createFromEs();
+    bool createFromEs(int payload_type, int time_base);
 
     std::string h264_sdp_create(const char* sps, const int sps_len,
         const char* pps, const int pps_len, int payload_type, int time_base);

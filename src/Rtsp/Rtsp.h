@@ -110,6 +110,27 @@ private:
 	std::shared_ptr<Buffer> data_;
 };
 
+class Track {
+public:
+	using Ptr = std::shared_ptr<Track>;
+
+	std::string getSSRC();
+
+	uint32_t generateSSRC();
+
+public:
+	int _pt;
+	int _samplerate;
+	int _type;
+public:
+	bool _inited = false;
+	uint8_t _interleaved = 0;
+	uint16_t _seq = 0;
+	uint32_t _ssrc = 0;
+	//时间戳，单位毫秒
+	uint32_t _time_stamp = 0;
+};
+
 class Nalu {
 public:
 	int startcodeprefix_len;	//! 4 for parameter sets and first slice in picture, 3 for everything else (suggested)

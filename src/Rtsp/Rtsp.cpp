@@ -108,6 +108,17 @@ size_t RtpPacket::getPayloadSize() const {
 }
 
 
+std::string Track::getSSRC() {
+	char tmp[9] = { 0 };
+	auto ui32Ssrc = htonl(_ssrc);
+	uint8_t* pSsrc = (uint8_t*)&ui32Ssrc;
+	for (int i = 0; i < 4; i++) {
+		sprintf(tmp + 2 * i, "%02X", pSsrc[i]);
+	}
+	return tmp;
+}
+
+
 
 
 

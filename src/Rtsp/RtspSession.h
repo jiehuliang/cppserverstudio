@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <cstdio>
 #include "RtspMediaStream.h"
 #include "Rtsp.h"
 class HttpRequest;
@@ -52,6 +53,8 @@ private:
 
 	//推流或拉流客户端采用的rtp传输方式
 	eRtpType _rtp_type = eRtpType::RTP_Invalid;
+
+	Track::Ptr _media_track;
 };
 
 #endif // RTSP_SESSION_H

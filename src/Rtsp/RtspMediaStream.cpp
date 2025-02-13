@@ -8,7 +8,7 @@ RtspMediaStream::RtspMediaStream(std::string url):url_(url) {}
 
 RtspMediaStream::~RtspMediaStream() {}
 
-bool RtspMediaStream::createFromEs() {
+bool RtspMediaStream::createFromEs(int payload_type, int time_base) {
 	stream_ = File::loadFile(url_);
 	if (stream_.empty()) {
 		LOG_ERROR << "Failed to load file: " << url_.c_str();
@@ -35,7 +35,7 @@ bool RtspMediaStream::createFromEs() {
 			pps = nalu;
 			pps.buf = new char[nalu.len];
 			memcpy(pps.buf, nalu.buf, nalu.len);
-			sdp_ = h264_sdp_create(sps.buf, sps.len, pps.buf, pps.len, 96, 90000);
+			sdp_ = h264_sdp_create(sps.buf, sps.len, pps.buf, pps.len, payload_type, time_base);
 			got_sps_pps = 1;
 		}
 	}

@@ -50,5 +50,17 @@ enum RC {
 
 std::string makeRandStr(int sz, bool printable = true);
 
+template<typename T>
+T generateRandomInt() {
+    //利用std::numeric_limits获取T类型的最大可能值
+    T maxVal = std::numeric_limits<T>::max();
+    // 创建一个随机数生成器
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_int_distribution<T> dis(0, maxVal);
+    return dis(gen);
+}
+
 
 #endif //COMMON_H

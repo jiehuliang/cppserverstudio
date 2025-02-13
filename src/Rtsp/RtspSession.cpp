@@ -6,7 +6,9 @@
 #include <cinttypes>
 
 
-RtspSession::RtspSession() {}
+RtspSession::RtspSession() {
+	_media_track = std::make_shared<Track>();
+}
 
 RtspSession::~RtspSession() {}
 
@@ -37,13 +39,22 @@ void RtspSession::handleOptions(const TcpConnectionPtr& conn, const RtspRequest&
 }
 void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest& request) {
 	//conn->loop()->RunEvery();
+	Track::Ptr& trackRef = _media_track;
+	trackRef->_seq = 1;
+	trackRef->_ssrc = generateRandomInt<uint32_t>();
+	trackRef->_time_stamp = 0;
+	trackRef->_type = 0;
+	trackRef->_samplerate = 90000;
+	trackRef->_pt = 96;
+
 	_stream = std::make_shared<RtspMediaStream>(_streamid);
-	auto ready = _stream->createFromEs();
+	auto ready = _stream->createFromEs(trackRef->_pt = 96, trackRef->_samplerate);
 	_sessionid = makeRandStr(12);
 	if (!ready) {
 		conn->Send(getRtspResponse("404 Stream Not Found", { "Connection","Close" }));
 		return;
 	}
+	
 	conn->Send(getRtspResponse("200 OK",
 		{ "Content-Base", _content_base + "/",
 		 "x-Accept-Retransmit","our-retransmit",
@@ -52,6 +63,9 @@ void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest
 
 }
 void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& request) {
+	Track::Ptr& trackRef = _media_track;
+	trackRef->_inited = true; //现在初始化
+
 	if (_rtp_type == eRtpType::RTP_Invalid) {
 		auto transport = request.GetRequestValue("Transport");
 		if (transport.find("TCP") != std::string::npos) {
@@ -66,16 +80,36 @@ void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& r
 	}
 
 	switch (_rtp_type) {
-	case eRtpType::RTP_TCP:
-
-	case eRtpType::RTP_UDP:
-	case eRtpType::RTP_MULTICAST:
+	case eRtpType::RTP_TCP: {
+		trackRef->_interleaved = 2 * trackRef->_type;
+		conn->Send(getRtspResponse("200 OK",
+			{ "Transport",(std::string("RTP/AVP/TCP;unicast;") + "interleaved=") +
+							std::to_string((int)trackRef->_interleaved) + "-" +
+							std::to_string((int)trackRef->_interleaved + 1) + ";" +
+							"ssrc=" + trackRef->getSSRC(),
+				"x-Transport-Options","late-tolerance=1.400000",
+				"x-Dynamic-Rate","1"
+			}));
+	}
+		break;
+	case eRtpType::RTP_UDP: {}
+		break;
+	case eRtpType::RTP_MULTICAST: {}
+		break;
 	}
 
 }
 
 void RtspSession::handlePlay(const TcpConnectionPtr& conn, const RtspRequest& request) {
-
+	if(_media_track == nullptr || request.GetRequestValue("Session") != _sessionid) {
+		conn->Send(getRtspResponse("454 Session Not Found", { "Connection","Close" }));
+		return;
+	}
+	if (!_stream) {
+		conn->Send(getRtspResponse("404 Stream Not Found", { "Connection","Close" }));
+		return;
+	}
+	conn->Send(getRtspResponse("404 Stream Not Found", { "Connection","Close" }));
 }
 
 void RtspSession::handleTeardown(const TcpConnectionPtr& conn, const RtspRequest& request) {
