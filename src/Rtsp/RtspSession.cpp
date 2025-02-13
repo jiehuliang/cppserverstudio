@@ -1,9 +1,12 @@
 #include "RtspSession.h"
 #include "HttpRequest.h"
 #include "TcpConnection.h"
+#include "EventLoop.h"
 #include"common.h"
 
 #include <cinttypes>
+#include <iomanip>
+#include <atomic>
 
 
 RtspSession::RtspSession() {
@@ -109,7 +112,27 @@ void RtspSession::handlePlay(const TcpConnectionPtr& conn, const RtspRequest& re
 		conn->Send(getRtspResponse("404 Stream Not Found", { "Connection","Close" }));
 		return;
 	}
-	conn->Send(getRtspResponse("404 Stream Not Found", { "Connection","Close" }));
+	auto Scale = request.GetRequestValue("Scale");
+	auto Range = request.GetRequestValue("Range");
+	std::map<std::string, std::string> resMap;
+	if (!Scale.empty()) {
+	}
+	if (!Range.empty()) {
+	}
+	Track::Ptr& trackRef = _media_track;
+	std::string rtp_info;
+	rtp_info = "url=" + _content_base + ";" +
+		"seq=" + std::to_string(trackRef->_seq) + ";" +
+		"rtptime=" + std::to_string((int)(trackRef->_time_stamp * (trackRef->_samplerate / 1000))) + ",";
+	rtp_info.pop_back();
+	resMap.emplace("RTP-Info", rtp_info);
+	resMap.emplace("Range", std::string("npt=") + std::to_string(trackRef->_time_stamp / 1000.0));
+	conn->Send(getRtspResponse("200 OK", resMap));
+
+	conn->loop()->RunEvery(500, [this, conn]() {
+		
+	},TimeUnit::MILLISECONDS);
+
 }
 
 void RtspSession::handleTeardown(const TcpConnectionPtr& conn, const RtspRequest& request) {

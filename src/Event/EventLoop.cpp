@@ -104,12 +104,12 @@ void EventLoop::RunAt(TimeStamp timestamp, std::function<void()>const& cb) {
     timer_queue_->AddTimer(timestamp,std::move(cb),0.0);
 }
 
-void EventLoop::RunAfter(double wait_time, std::function<void()>const& cb) {
-    TimeStamp timestamp(TimeStamp::AddTime(TimeStamp::Now(), wait_time));
-    timer_queue_->AddTimer(timestamp, std::move(cb), 0.0);
+void EventLoop::RunAfter(double wait_time, std::function<void()>const& cb, TimeUnit unit) {
+    TimeStamp timestamp(TimeStamp::AddTime(TimeStamp::Now(), wait_time, unit));
+    timer_queue_->AddTimer(timestamp, std::move(cb), 0.0, unit);
 }
 
-void EventLoop::RunEvery(double interval, std::function<void()>const& cb) {
-    TimeStamp timestamp(TimeStamp::AddTime(TimeStamp::Now(), interval));
-    timer_queue_->AddTimer(timestamp, std::move(cb), interval);
+void EventLoop::RunEvery(double interval, std::function<void()>const& cb, TimeUnit unit) {
+    TimeStamp timestamp(TimeStamp::AddTime(TimeStamp::Now(), interval, unit));
+    timer_queue_->AddTimer(timestamp, std::move(cb), interval, unit);
 }

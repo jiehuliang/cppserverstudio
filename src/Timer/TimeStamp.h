@@ -7,6 +7,14 @@
 
 const int kMicrosecond2Second = 1000 * 1000;
 
+enum TimeUnit {
+    MICROSECONDS,
+    MILLISECONDS,
+    SECONDS,
+    MINUTES,
+    HOURS
+};
+
 class TimeStamp{
 
     public:
@@ -45,7 +53,7 @@ class TimeStamp{
         int64_t microseconds() const { return micro_seconds_; };
 
         static TimeStamp Now();
-        static TimeStamp AddTime(TimeStamp timestamp, double add_seconds);
+        static TimeStamp AddTime(TimeStamp timestamp, double add_time, TimeUnit unit = SECONDS);
     private:
         int64_t micro_seconds_;
 };
@@ -57,8 +65,25 @@ inline TimeStamp TimeStamp::Now(){
     return TimeStamp(time.tv_sec * kMicrosecond2Second + time.tv_usec);
 };
 
-inline TimeStamp TimeStamp::AddTime(TimeStamp timestamp, double add_seconds){
-    int64_t add_microseconds = static_cast<int64_t>(add_seconds) * kMicrosecond2Second;   
+inline TimeStamp TimeStamp::AddTime(TimeStamp timestamp, double add_time, TimeUnit unit){
+    int64_t add_microseconds;
+    switch (unit) {
+    case TimeUnit::MICROSECONDS:
+        add_microseconds = add_time;
+        break;
+    case TimeUnit::MILLISECONDS:
+        add_microseconds = add_time * 1000;
+        break;
+    case TimeUnit::SECONDS:
+        add_microseconds = add_time * kMicrosecond2Second;
+        break;
+    case TimeUnit::MINUTES:
+        add_microseconds = add_time * 60 * kMicrosecond2Second;
+        break;
+    case TimeUnit::HOURS:
+        add_microseconds = add_time * 3600 * kMicrosecond2Second;
+        break;
+    }
     return TimeStamp(timestamp.microseconds() + add_microseconds);
 };
 

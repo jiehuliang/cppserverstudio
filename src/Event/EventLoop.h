@@ -24,8 +24,8 @@ public:
 
     //定时器功能
     void RunAt(TimeStamp timestamp, std::function<void()> const& cb);
-    void RunAfter(double wait_time, std::function<void()>const& cb);
-    void RunEvery(double interval,  std::function<void()>const& cb);
+    void RunAfter(double wait_time, std::function<void()>const& cb, TimeUnit unit = TimeUnit::SECONDS);
+    void RunEvery(double interval,  std::function<void()>const& cb, TimeUnit unit = TimeUnit::SECONDS);
 
     // 运行队列中的任务
     void DoToDoList();

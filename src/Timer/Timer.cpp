@@ -1,14 +1,15 @@
 #include "Timer.h"
 #include <functional>
 #include "TimeStamp.h"
-Timer::Timer(TimeStamp timestamp, std::function<void()>const &cb, double interval = 0.0)
+Timer::Timer(TimeStamp timestamp, std::function<void()>const &cb, double interval = 0.0, TimeUnit unit)
     : expiration_(timestamp),
       callback_(std::move(cb)),
       interval_(interval),
-      repeat_(interval > 0.0){};
+      repeat_(interval > 0.0),
+      unit_(unit){};
     
 void Timer::ReStart(TimeStamp now){
-    expiration_ = TimeStamp::AddTime(now, interval_);
+    expiration_ = TimeStamp::AddTime(now, interval_,unit_);
 }
 
 

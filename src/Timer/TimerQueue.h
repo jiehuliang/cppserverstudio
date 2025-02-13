@@ -27,7 +27,7 @@ public:
 	void ResetTimers(); //将具有重复属性的定时器重新加入队列
 
 	bool Insert(Timer* timer); //将定时任务插入队列
-	void AddTimer(TimeStamp timestamp, std::function<void()>const& cb, double interval); //添加一个定时任务
+	void AddTimer(TimeStamp timestamp, std::function<void()>const& cb, double interval, TimeUnit unit = TimeUnit::SECONDS); //添加一个定时任务
 
 private:
 	using  Entry =  std::pair<TimeStamp, Timer*>;

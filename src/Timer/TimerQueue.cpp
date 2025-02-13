@@ -48,8 +48,8 @@ void TimerQueue::HandleRead(){
 	}
 	ResetTimers();
 }
-void TimerQueue::AddTimer(TimeStamp timestamp,std::function<void()>const &cb,double interval){
-	Timer *timer = new Timer(timestamp,cb,interval);
+void TimerQueue::AddTimer(TimeStamp timestamp,std::function<void()>const &cb,double interval, TimeUnit unit){
+	Timer *timer = new Timer(timestamp,cb,interval, unit);
 	if(Insert(timer))
 	{
 		ResetTimerFd(timer);
