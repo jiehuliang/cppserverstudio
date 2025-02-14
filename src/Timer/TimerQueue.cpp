@@ -1,5 +1,4 @@
 
-#include "Timer.h"
 #include "TimeStamp.h"
 #include "TimerQueue.h"
 
@@ -25,9 +24,10 @@ void TimerQueue::CreateTimerfd(){
 TimerQueue::~TimerQueue(){
 	loop_->DeleteChannel(channel_.get());
 	::close(timerfd_);
-	for(const auto& entry : timers_){	
-		delete entry.second;
-	}
+	//for(const auto& entry : timers_){	
+	//	delete entry.second;
+	//}
+	timers_.clear();
 }
 void TimerQueue::ReadTimerFd(){
 	uint64_t read_byte;
@@ -39,7 +39,8 @@ void TimerQueue::ReadTimerFd(){
 void TimerQueue::HandleRead(){
 	ReadTimerFd();
 	active_timers_.clear();
-	auto end = timers_.lower_bound(Entry(TimeStamp::Now(),reinterpret_cast<Timer *>(UINTPTR_MAX)));
+	//auto end = timers_.lower_bound(Entry(TimeStamp::Now(),reinterpret_cast<Timer *>(UINTPTR_MAX)));
+	auto end = timers_.lower_bound(Entry(TimeStamp::Now(), std::make_shared<Timer>(UINTPTR_MAX)));
 	active_timers_.insert(active_timers_.end(),timers_.begin(),end);
 	timers_.erase(timers_.begin(),end);
 	for (const auto &entry : active_timers_)
@@ -48,14 +49,15 @@ void TimerQueue::HandleRead(){
 	}
 	ResetTimers();
 }
-void TimerQueue::AddTimer(TimeStamp timestamp,std::function<void()>const &cb,double interval, TimeUnit unit){
-	Timer *timer = new Timer(timestamp,cb,interval, unit);
+Timer::TimerPtr TimerQueue::AddTimer(TimeStamp timestamp,std::function<void()>const &cb,double interval, TimeUnit unit){
+	Timer::TimerPtr timer = std::make_shared<Timer>(timestamp, cb, interval, unit);
 	if(Insert(timer))
 	{
 		ResetTimerFd(timer);
 	}
+	return timer;
 }
-bool TimerQueue::Insert(Timer * timer){
+bool TimerQueue::Insert(Timer::TimerPtr timer){
 	bool reset_instantly = false;
 	if(timers_.empty() || timer->expiration() < timers_.begin()->first){
 		reset_instantly = true;
@@ -69,15 +71,17 @@ void TimerQueue::ResetTimers(){
 			auto timer = entry.second;
 			timer->ReStart(TimeStamp::Now());
 			Insert(timer);
-		}else{
-			delete entry.second;
 		}
+		//else{
+		//	delete entry.second;
+		//}
 	}
+	active_timers_.clear();
 	if (!timers_.empty()){
 			ResetTimerFd(timers_.begin()->second);
 	}
 }
-void TimerQueue::ResetTimerFd(Timer* timer) {
+void TimerQueue::ResetTimerFd(Timer::TimerPtr timer) {
 	struct itimerspec new_;
 	struct itimerspec old_;
 	memset(&new_, '\0', sizeof(new_));

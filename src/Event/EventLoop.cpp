@@ -109,7 +109,7 @@ void EventLoop::RunAfter(double wait_time, std::function<void()>const& cb, TimeU
     timer_queue_->AddTimer(timestamp, std::move(cb), 0.0, unit);
 }
 
-void EventLoop::RunEvery(double interval, std::function<void()>const& cb, TimeUnit unit) {
+Timer::TimerPtr EventLoop::RunEvery(double interval, std::function<void()>const& cb, TimeUnit unit) {
     TimeStamp timestamp(TimeStamp::AddTime(TimeStamp::Now(), interval, unit));
-    timer_queue_->AddTimer(timestamp, std::move(cb), interval, unit);
+    return timer_queue_->AddTimer(timestamp, std::move(cb), interval, unit);
 }

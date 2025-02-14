@@ -116,8 +116,6 @@ public:
 
 	std::string getSSRC();
 
-	uint32_t generateSSRC();
-
 public:
 	int _pt;
 	int _samplerate;
@@ -133,13 +131,15 @@ public:
 
 class Nalu {
 public:
+	using Ptr = std::shared_ptr<Nalu>;
+
 	int startcodeprefix_len;	//! 4 for parameter sets and first slice in picture, 3 for everything else (suggested)
 	unsigned len;	//! Length of the NAL unit (include the start code, which does not belong to the NALU)
 	unsigned max_size;	//! Nal Unit Buffer size
 	int forbidden_bit;	//! should be always FALSE
 	int nal_reference_idc;	//! NALU_PRIORITY_xxxx
 	int nal_unit_type;	//! NALU_TYPE_xxxx
-	char* buf;	//! include start code
+	std::string buffer;	//! include start code
 	unsigned short lost_packets;	//! true, if packet loss is detected
 
 	int get_annexb_nalu(const char* stream, size_t size);

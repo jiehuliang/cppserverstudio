@@ -23,4 +23,22 @@ private:
 };
 
 
+class H264RtpEncoder {
+public:
+	int inputFrame(Nalu::Ptr nalu);
+
+
+
+private:
+	void packRtp();
+	void packRtpFu();
+	void packRtpStapA();
+
+private:
+	Nalu::Ptr sps_;
+	Nalu::Ptr pps_;
+	Nalu::Ptr last_nale_;
+};
+
+
 #endif // H264_RTP_H

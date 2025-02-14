@@ -4,7 +4,9 @@
 #include "Rtsp.h"
 #include "base64.h"
 
-RtspMediaStream::RtspMediaStream(std::string url):url_(url) {}
+RtspMediaStream::RtspMediaStream(std::string url):url_(url) {
+	_media_track = std::make_shared<Track>();
+}
 
 RtspMediaStream::~RtspMediaStream() {}
 
@@ -20,25 +22,26 @@ bool RtspMediaStream::createFromEs(int payload_type, int time_base) {
 	Nalu sps;
 	Nalu pps;
 
-	while (size > 0 && got_sps_pps == 0) {
+	while (size > 0 && got_sps_pps & 0x3) {
 		Nalu nalu;
 		int nalu_len = nalu.get_annexb_nalu(data, size);
 		size -= nalu_len;
 		data += nalu_len;
 
-		if (nalu.nal_unit_type == 7 && got_sps_pps == 0) {
+		if (nalu.nal_unit_type == 7) {
 			sps = nalu;
-			sps.buf = new char[nalu.len];
-			memcpy(sps.buf, nalu.buf, nalu.len);
+			got_sps_pps = got_sps_pps | 0x1;
+			continue;
 		}
-		if (nalu.nal_unit_type == 8 && got_sps_pps == 0) {
+		if (nalu.nal_unit_type == 8) {
 			pps = nalu;
-			pps.buf = new char[nalu.len];
-			memcpy(pps.buf, nalu.buf, nalu.len);
-			sdp_ = h264_sdp_create(sps.buf, sps.len, pps.buf, pps.len, payload_type, time_base);
-			got_sps_pps = 1;
+			got_sps_pps = got_sps_pps | 0x2;
+			continue;
 		}
 	}
+	sdp_ = h264_sdp_create(sps.buffer.c_str(), sps.len, pps.buffer.c_str(), pps.len, payload_type, time_base);
+	encoder_ = std::make_shared<H264RtpEncoder>();
+	createTimeStamp_ = TimeStamp::Now();
 	return true;
 }
 
@@ -94,6 +97,30 @@ std::string RtspMediaStream::h264_sdp_create(const char* sps, const int sps_len,
 
 	return sdp;
 }
+
+void RtspMediaStream::readFrame() {
+	auto nowTime = TimeStamp::Now().microseconds() - createTimeStamp_.microseconds();
+	const char* data = stream_.c_str();
+	size_t size = stream_.size();
+	while (_media_track->_time_stamp * 1000 < nowTime - 50000) {
+		Nalu nalu;
+		int nalu_len = nalu.get_annexb_nalu(data, size);
+		size -= nalu_len;
+		data += nalu_len;
+		_media_track->_time_stamp += 1000 / 25;
+		encoder_->inputFrame(std::move(nalu));
+		if (size == 0) {
+			data = stream_.c_str();
+			size = stream_.size();
+		}
+	}
+}
+
+Track::Ptr& RtspMediaStream::getMediaTrack(){
+	return _media_track;
+}
+
+
 
 std::string RtspMediaStream::getSdp() {
 	return sdp_;

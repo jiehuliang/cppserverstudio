@@ -7,10 +7,10 @@
 #include <cinttypes>
 #include <iomanip>
 #include <atomic>
+#include <memory>
 
 
 RtspSession::RtspSession() {
-	_media_track = std::make_shared<Track>();
 }
 
 RtspSession::~RtspSession() {}
@@ -42,7 +42,11 @@ void RtspSession::handleOptions(const TcpConnectionPtr& conn, const RtspRequest&
 }
 void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest& request) {
 	//conn->loop()->RunEvery();
-	Track::Ptr& trackRef = _media_track;
+
+
+	_stream = std::make_shared<RtspMediaStream>(_streamid);
+
+	Track::Ptr& trackRef = _stream->getMediaTrack();
 	trackRef->_seq = 1;
 	trackRef->_ssrc = generateRandomInt<uint32_t>();
 	trackRef->_time_stamp = 0;
@@ -50,8 +54,7 @@ void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest
 	trackRef->_samplerate = 90000;
 	trackRef->_pt = 96;
 
-	_stream = std::make_shared<RtspMediaStream>(_streamid);
-	auto ready = _stream->createFromEs(trackRef->_pt = 96, trackRef->_samplerate);
+	auto ready = _stream->createFromEs(trackRef->_pt, trackRef->_samplerate);
 	_sessionid = makeRandStr(12);
 	if (!ready) {
 		conn->Send(getRtspResponse("404 Stream Not Found", { "Connection","Close" }));
@@ -66,7 +69,7 @@ void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest
 
 }
 void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& request) {
-	Track::Ptr& trackRef = _media_track;
+	Track::Ptr& trackRef = _stream->getMediaTrack();
 	trackRef->_inited = true; //现在初始化
 
 	if (_rtp_type == eRtpType::RTP_Invalid) {
@@ -104,7 +107,7 @@ void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& r
 }
 
 void RtspSession::handlePlay(const TcpConnectionPtr& conn, const RtspRequest& request) {
-	if(_media_track == nullptr || request.GetRequestValue("Session") != _sessionid) {
+	if(_stream->getMediaTrack() == nullptr || request.GetRequestValue("Session") != _sessionid) {
 		conn->Send(getRtspResponse("454 Session Not Found", { "Connection","Close" }));
 		return;
 	}
@@ -119,7 +122,7 @@ void RtspSession::handlePlay(const TcpConnectionPtr& conn, const RtspRequest& re
 	}
 	if (!Range.empty()) {
 	}
-	Track::Ptr& trackRef = _media_track;
+	Track::Ptr& trackRef = _stream->getMediaTrack();
 	std::string rtp_info;
 	rtp_info = "url=" + _content_base + ";" +
 		"seq=" + std::to_string(trackRef->_seq) + ";" +
@@ -129,8 +132,15 @@ void RtspSession::handlePlay(const TcpConnectionPtr& conn, const RtspRequest& re
 	resMap.emplace("Range", std::string("npt=") + std::to_string(trackRef->_time_stamp / 1000.0));
 	conn->Send(getRtspResponse("200 OK", resMap));
 
-	conn->loop()->RunEvery(500, [this, conn]() {
-		
+	std::weak_ptr<RtspSession> weak_self = std::dynamic_pointer_cast<RtspSession>(shared_from_this());
+	_timer = conn->loop()->RunEvery(500, [weak_self, conn]() {
+		auto strong_self = weak_self.lock();
+		if (!strong_self) {
+			//本对象已经销毁
+			return;
+		}
+		auto stream = strong_self->getStream();
+		stream->readFrame();
 	},TimeUnit::MILLISECONDS);
 
 }
@@ -224,4 +234,8 @@ void RtspSession::parse(const std::string& url_in) {
 		url.pop_back();
 	}
 	_streamid = url;
+}
+
+std::shared_ptr<RtspMediaStream> RtspSession::getStream() {
+	return _stream;
 }

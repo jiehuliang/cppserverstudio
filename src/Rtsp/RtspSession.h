@@ -9,7 +9,7 @@
 class HttpRequest;
 class TcpConnection;
 
-class RtspSession {
+class RtspSession :public std::enable_shared_from_this<RtspSession>{
 	using RtspRequest = HttpRequest;
 	using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
 public:
@@ -29,6 +29,8 @@ public:
 		const std::string& sdp = "", const std::string& protocol = "RTSP/1.0");
 
 	void parse(const std::string& url_in);
+
+	std::shared_ptr<RtspMediaStream> getStream();
 
 private:
 	//收到的seq，回复时一致
@@ -54,7 +56,8 @@ private:
 	//推流或拉流客户端采用的rtp传输方式
 	eRtpType _rtp_type = eRtpType::RTP_Invalid;
 
-	Track::Ptr _media_track;
+
+	Timer::TimerPtr _timer;
 };
 
 #endif // RTSP_SESSION_H

@@ -82,14 +82,10 @@ int main() {
 
 		if (nalu.nal_unit_type == 7 && got_sps_pps == 0) {
 			sps = nalu;
-			sps.buf = new char[nalu.len];
-			memcpy(sps.buf, nalu.buf, nalu.len);
 		}
 		if (nalu.nal_unit_type == 8 && got_sps_pps == 0) {
 			pps = nalu;
-			pps.buf = new char[nalu.len];
-			memcpy(pps.buf, nalu.buf, nalu.len);
-			h264_sdp_create("h264.sdp", "127.0.0.1", 5004,sps.buf,sps.len, pps.buf, pps.len, 96, 90000, 300000);
+			h264_sdp_create("h264.sdp", "127.0.0.1", 5004,sps.buffer.c_str(), sps.len, pps.buffer.c_str(), pps.len, 96, 90000, 300000);
 			got_sps_pps = 1;
 		}
 
@@ -101,7 +97,7 @@ int main() {
 		memcpy(buffer, start_code, sizeof(start_code));
 		size_out += 4;
 
-		memcpy(buffer + size_out, nalu.buf, nalu.len);
+		memcpy(buffer + size_out, nalu.buffer.c_str(), nalu.len);
 		size_out += nalu.len;
 
 		fwrite(buffer, 1, size_out, fp);

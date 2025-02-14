@@ -2,12 +2,16 @@
 #define TIMER_H
 
 #include <functional>
+#include <memory>
 #include "common.h"
 #include "TimeStamp.h"
 class Timer
 {
 public:
     DISALLOW_COPY_AND_MOVE(Timer);
+
+    using TimerPtr = std::shared_ptr<Timer>;
+
     Timer(TimeStamp timestamp, std::function<void()>const &cb, double interval,TimeUnit unit = TimeUnit::SECONDS);
 
     void ReStart(TimeStamp now);

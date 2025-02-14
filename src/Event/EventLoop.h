@@ -2,6 +2,7 @@
 #define EVENTLOOP_H
 
 #include "common.h"
+#include "Timer.h"
 
 #include <memory>
 #include <mutex>
@@ -25,7 +26,7 @@ public:
     //定时器功能
     void RunAt(TimeStamp timestamp, std::function<void()> const& cb);
     void RunAfter(double wait_time, std::function<void()>const& cb, TimeUnit unit = TimeUnit::SECONDS);
-    void RunEvery(double interval,  std::function<void()>const& cb, TimeUnit unit = TimeUnit::SECONDS);
+    Timer::TimerPtr RunEvery(double interval,  std::function<void()>const& cb, TimeUnit unit = TimeUnit::SECONDS);
 
     // 运行队列中的任务
     void DoToDoList();

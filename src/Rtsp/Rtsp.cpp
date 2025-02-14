@@ -158,9 +158,8 @@ int Nalu::get_annexb_nalu(const char* in, size_t size) {
 		i++;
 		if (i + 3 >= size) { 
 			nal_end = size;
-			len = nal_end - nal_start;
-			buf = new char[len];
 			std::memcpy(this->buf, stream + nal_start, len);
+			buffer = std::string(stream + nal_start, len);
 			forbidden_bit = buf[0] & 0x80;
 			nal_reference_idc = buf[0] & 0x60;
 			nal_unit_type = buf[0] & 0x1F;
@@ -170,8 +169,7 @@ int Nalu::get_annexb_nalu(const char* in, size_t size) {
 	nal_end = i;
 
 	len = nal_end - nal_start;
-	buf = new char[len];
-	std::memcpy(this->buf, stream + nal_start, len);
+	buffer = std::string(stream + nal_start, len);
 	forbidden_bit = buf[0] & 0x80;
 	nal_reference_idc = buf[0] & 0x60;
 	nal_unit_type = buf[0] & 0x1F;
