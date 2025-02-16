@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include "Rtsp.h"
+#include "H264.h"
 
 class H264RtpDecoder {
 public:
@@ -25,19 +26,19 @@ private:
 
 class H264RtpEncoder {
 public:
-	int inputFrame(Nalu::Ptr nalu);
-
-
+	int inputFrame(const H264Nalu::Ptr& nalu);
 
 private:
-	void packRtp();
+	void insertConfigFrame(uint32_t pts);
+	bool inputFrame_l(const H264Nalu::Ptr& nalu, bool is_mark);
+	void packRtp(const char* data, size_t len, uint32_t pts, bool is_mark, bool gop_pos);
 	void packRtpFu();
 	void packRtpStapA();
 
 private:
-	Nalu::Ptr sps_;
-	Nalu::Ptr pps_;
-	Nalu::Ptr last_nale_;
+	H264Nalu::Ptr sps_;
+	H264Nalu::Ptr pps_;
+	H264Nalu::Ptr last_nalu_;
 };
 
 

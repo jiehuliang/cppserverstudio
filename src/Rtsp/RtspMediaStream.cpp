@@ -1,8 +1,8 @@
 #include "RtspMediaStream.h"
 #include "Logging.h"
 #include "File.h"
-#include "Rtsp.h"
 #include "base64.h"
+#include "H264.h"
 
 RtspMediaStream::RtspMediaStream(std::string url):url_(url) {
 	_media_track = std::make_shared<Track>();
@@ -19,11 +19,11 @@ bool RtspMediaStream::createFromEs(int payload_type, int time_base) {
 	const char* data = stream_.c_str();
 	size_t size = stream_.size();
 	int got_sps_pps = 0;
-	Nalu sps;
-	Nalu pps;
+	H264Nalu sps;
+	H264Nalu pps;
 
 	while (size > 0 && got_sps_pps & 0x3) {
-		Nalu nalu;
+		H264Nalu nalu;
 		int nalu_len = nalu.get_annexb_nalu(data, size);
 		size -= nalu_len;
 		data += nalu_len;
@@ -103,11 +103,15 @@ void RtspMediaStream::readFrame() {
 	const char* data = stream_.c_str();
 	size_t size = stream_.size();
 	while (_media_track->_time_stamp * 1000 < nowTime - 50000) {
-		Nalu nalu;
-		int nalu_len = nalu.get_annexb_nalu(data, size);
+		H264Nalu::Ptr nalu = std::make_shared<H264Nalu>();
+		int nalu_len = nalu->get_annexb_nalu(data, size);
 		size -= nalu_len;
 		data += nalu_len;
-		_media_track->_time_stamp += 1000 / 25;
+		if (nalu->decodeAble()) {
+			_media_track->_time_stamp += 1000 / 25;
+		}
+		nalu->_dts = _media_track->_time_stamp * 90;
+		nalu->_pts = nalu->_dts;
 		encoder_->inputFrame(std::move(nalu));
 		if (size == 0) {
 			data = stream_.c_str();

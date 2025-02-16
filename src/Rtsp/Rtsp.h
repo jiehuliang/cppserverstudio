@@ -129,20 +129,4 @@ public:
 	uint32_t _time_stamp = 0;
 };
 
-class Nalu {
-public:
-	using Ptr = std::shared_ptr<Nalu>;
-
-	int startcodeprefix_len;	//! 4 for parameter sets and first slice in picture, 3 for everything else (suggested)
-	unsigned len;	//! Length of the NAL unit (include the start code, which does not belong to the NALU)
-	unsigned max_size;	//! Nal Unit Buffer size
-	int forbidden_bit;	//! should be always FALSE
-	int nal_reference_idc;	//! NALU_PRIORITY_xxxx
-	int nal_unit_type;	//! NALU_TYPE_xxxx
-	std::string buffer;	//! include start code
-	unsigned short lost_packets;	//! true, if packet loss is detected
-
-	int get_annexb_nalu(const char* stream, size_t size);
-};
-
 #endif //RTP_H

@@ -2,7 +2,7 @@
 #define MEDIA_STREAM_H
 
 #include <string>
-#include "h264Rtp.h"
+#include "H264Rtp.h"
 #include "TimeStamp.h"
 
 class RtspMediaStream {
