@@ -75,14 +75,17 @@ void H264RtpEncoder::packRtpFu() {
 
 
 RtpPacket::Ptr H264RtpEncoder::makeRtp(int type,const char* data,size_t len,bool mark,uint32_t stamp) {
-    uint16_t playload_len = (uint16_t)(len + RtpPacket::RtpHeaderSize);;
+    uint16_t playload_len = (uint16_t)(len + RtpPacket::RtpHeaderSize);
     RtpPacket::Ptr rtp = RtpPacket::CreateRtp();
     //rtsp over tcp 头
-    auto ptr = rtp->getData();
-    ptr->Append("$", 1);
-    ptr->Append(std::to_string(_interleaved).c_str(), 1);
-    ptr->Append(std::to_string(playload_len>>8).c_str(), 1);
-    ptr->Append(std::to_string(playload_len & 0xFF).c_str(), 1);
+    auto pack = rtp->getData();
+    std::string capacity(RtpPacket::RtpTcpHeaderSize + playload_len, 0);
+    pack->Append(capacity.c_str(), RtpPacket::RtpTcpHeaderSize + playload_len);
+    auto ptr = pack->Peek();
+    ptr[0] = '$';
+    ptr[1] = _interleaved;
+    ptr[2] = playload_len >> 8;
+    ptr[3] = playload_len & 0xFF;
 
     auto header = rtp->getHeader();
     header->version = RtpPacket::RtpVersion;
@@ -95,5 +98,11 @@ RtpPacket::Ptr H264RtpEncoder::makeRtp(int type,const char* data,size_t len,bool
     ++_seq;
     header->timestamp = htonl(uint64_t(stamp) * _sample_rate / 1000);
     header->ssrc = htonl(_ssrc);
+
+    //有效负载
+    if (data) {
+        memcpy(&ptr[RtpPacket::RtpHeaderSize + RtpPacket::RtpTcpHeaderSize], data, len);
+    }
+    return rtp;
 }
 

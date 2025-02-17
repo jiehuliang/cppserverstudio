@@ -38,7 +38,7 @@ typedef enum {
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 **/
 
-#pragma pack(push, 1)
+
 class RtpHeader {
 public:
 #if __BYTE_ORDER == __BIG_ENDIAN
@@ -79,8 +79,7 @@ private:
 	size_t getPayloadOffset() const;
 	size_t getPaddingSize(size_t rtp_size) const;
 
-};
-#pragma pack(pop)
+}__attribute__((packed));
 
 class RtpPacket {
 public:
