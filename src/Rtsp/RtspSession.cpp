@@ -53,6 +53,7 @@ void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest
 	trackRef->_type = 0;
 	trackRef->_samplerate = 90000;
 	trackRef->_pt = 96;
+	trackRef->_interleaved = 2 * trackRef->_type;
 
 	auto ready = _stream->createFromEs(trackRef->_pt, trackRef->_samplerate);
 	_sessionid = makeRandStr(12);
@@ -87,7 +88,6 @@ void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& r
 
 	switch (_rtp_type) {
 	case eRtpType::RTP_TCP: {
-		trackRef->_interleaved = 2 * trackRef->_type;
 		conn->Send(getRtspResponse("200 OK",
 			{ "Transport",(std::string("RTP/AVP/TCP;unicast;") + "interleaved=") +
 							std::to_string((int)trackRef->_interleaved) + "-" +

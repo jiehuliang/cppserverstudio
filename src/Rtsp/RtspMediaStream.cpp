@@ -40,7 +40,7 @@ bool RtspMediaStream::createFromEs(int payload_type, int time_base) {
 		}
 	}
 	sdp_ = h264_sdp_create(sps.buffer.c_str(), sps.len, pps.buffer.c_str(), pps.len, payload_type, time_base);
-	encoder_ = std::make_shared<H264RtpEncoder>();
+	encoder_ = std::make_shared<H264RtpEncoder>(_media_track->_ssrc, _media_track->_interleaved, _media_track->_pt, _media_track->_samplerate);
 	createTimeStamp_ = TimeStamp::Now();
 	return true;
 }

@@ -107,6 +107,10 @@ size_t RtpPacket::getPayloadSize() const {
 	return (size_t)getHeader()->getPayloadSize(data_->readablebytes());
 }
 
+std::shared_ptr<Buffer> RtpPacket::getData() {
+	return data_;
+}
+
 
 std::string Track::getSSRC() {
 	char tmp[9] = { 0 };

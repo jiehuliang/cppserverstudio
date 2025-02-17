@@ -104,6 +104,8 @@ public:
 	// Valid payload length, excluding csrc, ext, padding
 	size_t getPayloadSize() const;
 
+	std::shared_ptr<Buffer> getData();
+
 	static Ptr CreateRtp();
 
 private:

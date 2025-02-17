@@ -1,5 +1,5 @@
 #include "H264Rtp.h"
-
+#include <arpa/inet.h>
 
 
 int H264RtpDecoder::inputRtp(const RtpPacket::Ptr& rtp) {
@@ -11,6 +11,14 @@ int H264RtpDecoder::decodeRtp(const RtpPacket::Ptr& rtp) {
 	
 }
 
+
+H264RtpEncoder::H264RtpEncoder(uint32_t ssrc, uint8_t interleaved, uint8_t pt, uint32_t sample_rate, size_t mtu_size) {
+    _pt = pt;
+    _interleaved = interleaved;
+    _ssrc = ssrc;
+    _sample_rate = sample_rate;
+    _mtu_size = mtu_size;
+}
 
 void H264RtpEncoder::insertConfigFrame(uint32_t pts) {
     if (!sps_ || !pps_) {
@@ -50,8 +58,42 @@ bool H264RtpEncoder::inputFrame_l(const H264Nalu::Ptr& nalu, bool is_mark){
 }
 
 void H264RtpEncoder::packRtp(const char* data, size_t len, uint32_t pts, bool is_mark, bool gop_pos){
+    if (len + 3 <= _mtu_size - RtpPacket::RtpHeaderSize) {
+        packRtpStapA();
+    } else {
+        packRtpFu();
+    }
+}
+
+void H264RtpEncoder::packRtpStapA() {
 
 }
 
-void H264RtpEncoder::packRtpFu() {}
-void H264RtpEncoder::packRtpStapA() {}
+void H264RtpEncoder::packRtpFu() {
+
+}
+
+
+RtpPacket::Ptr H264RtpEncoder::makeRtp(int type,const char* data,size_t len,bool mark,uint32_t stamp) {
+    uint16_t playload_len = (uint16_t)(len + RtpPacket::RtpHeaderSize);;
+    RtpPacket::Ptr rtp = RtpPacket::CreateRtp();
+    //rtsp over tcp ͷ
+    auto ptr = rtp->getData();
+    ptr->Append("$", 1);
+    ptr->Append(std::to_string(_interleaved).c_str(), 1);
+    ptr->Append(std::to_string(playload_len>>8).c_str(), 1);
+    ptr->Append(std::to_string(playload_len & 0xFF).c_str(), 1);
+
+    auto header = rtp->getHeader();
+    header->version = RtpPacket::RtpVersion;
+    header->padding = 0;
+    header->ext = 0;
+    header->csrc = 0;
+    header->mark = mark;
+    header->pt = _pt;
+    header->seq = htons(_seq);
+    ++_seq;
+    header->timestamp = htonl(uint64_t(stamp) * _sample_rate / 1000);
+    header->ssrc = htonl(_ssrc);
+}
+
