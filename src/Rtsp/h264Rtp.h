@@ -2,6 +2,7 @@
 #define H264_RTP_H
 #include <cstdint>
 #include <cstddef>
+#include <functional>
 #include "Rtsp.h"
 #include "H264.h"
 
@@ -31,13 +32,18 @@ public:
 
 	int inputFrame(const H264Nalu::Ptr& nalu);
 
+	void set_send_cb(const std::function<void(const RtpPacket::Ptr& rtp)>& send_cb);
 private:
 	void insertConfigFrame(uint32_t pts);
 	bool inputFrame_l(const H264Nalu::Ptr& nalu, bool is_mark);
 	void packRtp(const char* data, size_t len, uint32_t pts, bool is_mark, bool gop_pos);
-	void packRtpFu();
-	void packRtpStapA();
+	void packRtpFu(const char* ptr, size_t len, uint32_t pts, bool is_mark, bool gop_pos);
+	void packRtpStapA(const char* ptr,size_t len,uint32_t pts,bool is_mark,bool gop_pos);
 	RtpPacket::Ptr makeRtp(int type, const char* data, size_t len, bool mark, uint32_t stamp);
+
+
+
+	std::function<void(const RtpPacket::Ptr& rtp)> send_cb_ = [](const RtpPacket::Ptr& rtp) {};
 
 private:
 	H264Nalu::Ptr sps_;

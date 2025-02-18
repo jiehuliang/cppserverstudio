@@ -112,6 +112,7 @@ void RtspMediaStream::readFrame() {
 		}
 		nalu->_dts = _media_track->_time_stamp * 90;
 		nalu->_pts = nalu->_dts;
+		LOG_INFO << "nalu: " << nalu->buffer.c_str();
 		encoder_->inputFrame(std::move(nalu));
 		if (size == 0) {
 			data = stream_.c_str();

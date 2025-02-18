@@ -12,7 +12,7 @@ public:
 
     using TimerPtr = std::shared_ptr<Timer>;
 
-    Timer(TimeStamp timestamp, std::function<void()>const &cb, double interval,TimeUnit unit = TimeUnit::SECONDS);
+    Timer(TimeStamp timestamp, std::function<void()>const &cb, double interval = 0.0,TimeUnit unit = TimeUnit::SECONDS);
 
     void ReStart(TimeStamp now);
 

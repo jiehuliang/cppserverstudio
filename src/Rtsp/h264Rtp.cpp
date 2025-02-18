@@ -59,18 +59,50 @@ bool H264RtpEncoder::inputFrame_l(const H264Nalu::Ptr& nalu, bool is_mark){
 
 void H264RtpEncoder::packRtp(const char* data, size_t len, uint32_t pts, bool is_mark, bool gop_pos){
     if (len + 3 <= _mtu_size - RtpPacket::RtpHeaderSize) {
-        packRtpStapA();
+        packRtpStapA(data, len, pts, is_mark, gop_pos);
     } else {
-        packRtpFu();
+        packRtpFu(data, len, pts, is_mark, gop_pos);
     }
 }
 
-void H264RtpEncoder::packRtpStapA() {
-
+void H264RtpEncoder::packRtpStapA(const char* ptr, size_t len, uint32_t pts, bool is_mark, bool gop_pos) {
+    auto rtp = makeRtp(0, nullptr, len + 3, is_mark, pts);
+    uint8_t* playload = rtp->getPayload();
+    playload[0] = (ptr[0] & (~0x1F)) | 24;
+    playload[1] = (len >> 8) & 0xFF;
+    playload[2] = len & 0xFF;
+    memcpy(playload + 3 , (uint8_t*)ptr, len);
+    send_cb_(rtp);
 }
 
-void H264RtpEncoder::packRtpFu() {
+void H264RtpEncoder::packRtpFu(const char* ptr, size_t len, uint32_t pts, bool is_mark, bool gop_pos) {
+    auto packet_size = _mtu_size - RtpPacket::RtpHeaderSize - 2;
 
+    auto fu_flag_0 = (ptr[0] & (~0x1F)) | 28;
+    auto fu_flag_1 = (ptr[0] & 0x1F);
+
+    //FU-A start bit
+    fu_flag_1 |= 0x80;
+
+    size_t offset = 1;
+    while (!(fu_flag_1 & 0x40)) {
+        if (!(fu_flag_1 & 0x80) && len <= offset + packet_size) {
+            //FU-A end bit
+            fu_flag_1 |= 0x40;
+            packet_size = len - offset;
+        }
+
+        auto rtp = makeRtp(0, nullptr, packet_size + 2, (fu_flag_1 & 0x40) && is_mark, pts);
+        uint8_t* playload = rtp->getPayload();
+        playload[0] = fu_flag_0;
+        playload[1] = fu_flag_1;
+        memcpy(playload + 2, ptr + offset, packet_size);
+
+        send_cb_(rtp);
+
+        offset += packet_size;
+        fu_flag_1 &= (~0x80);
+    }
 }
 
 
@@ -104,5 +136,9 @@ RtpPacket::Ptr H264RtpEncoder::makeRtp(int type,const char* data,size_t len,bool
         memcpy(&ptr[RtpPacket::RtpHeaderSize + RtpPacket::RtpTcpHeaderSize], data, len);
     }
     return rtp;
+}
+
+void H264RtpEncoder::set_send_cb(const std::function<void(const RtpPacket::Ptr& rtp)>& send_cb) {
+    send_cb_ = send_cb;
 }
 

@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
     int port;
     if (argc <= 1)
     {
-        port = 1236;
+        port = 8787;
     }
     else if (argc == 2) {
         port = atoi(argv[1]);
@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     }
 	int size = std::thread::hardware_concurrency() - 1;
 	EventLoop* loop = new EventLoop();
-	RtspServer* rtspServer = new RtspServer(loop, "127.0.0.1", port, true);
+	RtspServer* rtspServer = new RtspServer(loop, "10.72.90.27", port, true);
 	rtspServer->SetThreadNums(size);
     rtspServer->start();
 }

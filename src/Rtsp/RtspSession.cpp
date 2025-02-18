@@ -3,6 +3,7 @@
 #include "TcpConnection.h"
 #include "EventLoop.h"
 #include"common.h"
+#include "Logging.h"
 
 #include <cinttypes>
 #include <iomanip>
@@ -71,7 +72,7 @@ void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest
 }
 void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& request) {
 	Track::Ptr& trackRef = _stream->getMediaTrack();
-	trackRef->_inited = true; //现在初始化
+	//trackRef->_inited = true; //现在初始化
 
 	if (_rtp_type == eRtpType::RTP_Invalid) {
 		auto transport = request.GetRequestValue("Transport");
@@ -132,15 +133,20 @@ void RtspSession::handlePlay(const TcpConnectionPtr& conn, const RtspRequest& re
 	resMap.emplace("Range", std::string("npt=") + std::to_string(trackRef->_time_stamp / 1000.0));
 	conn->Send(getRtspResponse("200 OK", resMap));
 
-	std::weak_ptr<RtspSession> weak_self = std::dynamic_pointer_cast<RtspSession>(shared_from_this());
+	auto play = [conn](RtpPacket::Ptr packet) {
+		auto videodata = packet->getData()->RetrieveAllAsString();
+		LOG_INFO << "send data:" << videodata;
+		conn->Send(videodata);
+		};
+	auto stream = getStream();
+	std::weak_ptr<RtspMediaStream> weak_self = std::dynamic_pointer_cast<RtspMediaStream>(stream);
 	_timer = conn->loop()->RunEvery(500, [weak_self, conn]() {
 		auto strong_self = weak_self.lock();
 		if (!strong_self) {
 			//本对象已经销毁
 			return;
 		}
-		auto stream = strong_self->getStream();
-		stream->readFrame();
+		strong_self->readFrame();
 	},TimeUnit::MILLISECONDS);
 
 }

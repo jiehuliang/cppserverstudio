@@ -1,4 +1,5 @@
 #include "H264.h"
+#include <cstring>
 
 
 /*
@@ -37,11 +38,11 @@ int H264Nalu::get_annexb_nalu(const char* in, size_t size) {
 		i++;
 		if (i + 3 >= size) {
 			nal_end = size;
-			std::memcpy(this->buf, stream + nal_start, len);
 			buffer = std::string(stream + nal_start, len);
+			auto buf = (uint8_t*)buffer.c_str();
 			forbidden_bit = buf[0] & 0x80;
 			nal_reference_idc = buf[0] & 0x60;
-			nal_unit_type = buf[0] & 0x1F;
+			nal_unit_type = static_cast<H264NaluType>(buf[0] & 0x1F);
 			return nal_end;
 		}
 	}
@@ -49,9 +50,10 @@ int H264Nalu::get_annexb_nalu(const char* in, size_t size) {
 
 	len = nal_end - nal_start;
 	buffer = std::string(stream + nal_start, len);
+	auto buf = (uint8_t*)buffer.c_str();
 	forbidden_bit = buf[0] & 0x80;
 	nal_reference_idc = buf[0] & 0x60;
-	nal_unit_type = buf[0] & 0x1F;
+	nal_unit_type = static_cast<H264NaluType>(buf[0] & 0x1F);
 
 	return nal_end;
 }

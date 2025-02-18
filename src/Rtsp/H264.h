@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 
+
 class H264Nalu {
 public:
     enum H264NaluType {
@@ -14,6 +15,7 @@ public:
         NAL_AUD = 9,
         NAL_B_P = 1,
     };
+    #define NaluType(type) static_cast<H264NaluType>(type)
 
     using Ptr = std::shared_ptr<H264Nalu>;
 

@@ -39,8 +39,8 @@ void TimerQueue::ReadTimerFd(){
 void TimerQueue::HandleRead(){
 	ReadTimerFd();
 	active_timers_.clear();
-	//auto end = timers_.lower_bound(Entry(TimeStamp::Now(),reinterpret_cast<Timer *>(UINTPTR_MAX)));
-	auto end = timers_.lower_bound(Entry(TimeStamp::Now(), std::make_shared<Timer>(UINTPTR_MAX)));
+	//auto end = timers_.lower_bound(Entry(TimeStamp::Now(), Timer::TimerPtr(reinterpret_cast<Timer *>(UINTPTR_MAX))));
+	auto end = timers_.lower_bound(Entry(TimeStamp::Now(), nullptr));
 	active_timers_.insert(active_timers_.end(),timers_.begin(),end);
 	timers_.erase(timers_.begin(),end);
 	for (const auto &entry : active_timers_)
