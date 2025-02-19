@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <iostream>
 #include <sys/socket.h>
-
+#include <signal.h>
 
 
 TcpConnection::TcpConnection(EventLoop *loop, int connfd, int connid): connfd_(connfd), connid_(connid), loop_(loop){
@@ -82,7 +82,7 @@ void TcpConnection::HandleMessage(){
 }
 
 void TcpConnection::HandleWrite() {
-    LOG_INFO << "TcpConnection::HandleWrite";
+    //LOG_INFO << "TcpConnection::HandleWrite";
     WriteNonBlocking();
 }
 
@@ -106,6 +106,7 @@ void TcpConnection::Send(const char *msg, int len){
     int remaining = len;
     int send_size = 0;
 
+    
     //如果此时send_buf_中没有数据，则可以先尝试发送数据
     if (send_buf_->readablebytes() == 0) {
         //强制类型转换，方便remaining操作
@@ -173,7 +174,6 @@ void TcpConnection::ReadNonBlocking(){
 
 void TcpConnection::WriteNonBlocking(){
     int remaining = send_buf_->readablebytes();
-
     int send_size = static_cast<int>(write(connfd_, send_buf_->Peek(), remaining));
     if ((send_size == -1) && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
         //说明此时TCP缓冲区是满的，没有办法写入，什么都不做
@@ -182,6 +182,8 @@ void TcpConnection::WriteNonBlocking(){
     }
     else if (send_size == -1) {
         LOG_ERROR << "TcpConnection::Send - TcpConnection Send Error";
+        channel_->set_write_callback([]() {});
+        HandleClose();
         //return;
     }
 

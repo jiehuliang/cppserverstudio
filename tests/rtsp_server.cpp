@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
     int port;
     if (argc <= 1)
     {
-        port = 8787;
+        port = 1234;
     }
     else if (argc == 2) {
         port = atoi(argv[1]);

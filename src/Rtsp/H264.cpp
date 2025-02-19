@@ -38,6 +38,7 @@ int H264Nalu::get_annexb_nalu(const char* in, size_t size) {
 		i++;
 		if (i + 3 >= size) {
 			nal_end = size;
+			len = nal_end - nal_start;
 			buffer = std::string(stream + nal_start, len);
 			auto buf = (uint8_t*)buffer.c_str();
 			forbidden_bit = buf[0] & 0x80;

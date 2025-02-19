@@ -14,7 +14,10 @@
 RtspSession::RtspSession() {
 }
 
-RtspSession::~RtspSession() {}
+RtspSession::~RtspSession() {
+	_stream->setEncoderSendCB([](const RtpPacket::Ptr& rtp) {});
+	_timer->cancel();
+}
 
 void RtspSession::onWholeRtspPacket(const TcpConnectionPtr& conn, const RtspRequest& request) {
 	_cseq = atoi(request.GetRequestValue("CSeq").c_str());
@@ -133,14 +136,13 @@ void RtspSession::handlePlay(const TcpConnectionPtr& conn, const RtspRequest& re
 	resMap.emplace("Range", std::string("npt=") + std::to_string(trackRef->_time_stamp / 1000.0));
 	conn->Send(getRtspResponse("200 OK", resMap));
 
-	auto play = [conn](RtpPacket::Ptr packet) {
-		auto videodata = packet->getData()->RetrieveAllAsString();
-		LOG_INFO << "send data:" << videodata;
-		conn->Send(videodata);
+	auto play = [conn](const RtpPacket::Ptr& packet) {
+		conn->Send(packet->getData()->RetrieveAllAsString());
 		};
+	_stream->setEncoderSendCB(play);
 	auto stream = getStream();
 	std::weak_ptr<RtspMediaStream> weak_self = std::dynamic_pointer_cast<RtspMediaStream>(stream);
-	_timer = conn->loop()->RunEvery(500, [weak_self, conn]() {
+	_timer = conn->loop()->RunEvery(100, [weak_self]() {
 		auto strong_self = weak_self.lock();
 		if (!strong_self) {
 			//本对象已经销毁

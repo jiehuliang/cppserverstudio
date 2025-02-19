@@ -17,6 +17,11 @@ void Timer::run() const{
     callback_();
 }
 
+void Timer::cancel() {
+    callback_ = []() {};
+    interval_ = 0.0;
+}
+
 TimeStamp Timer::expiration() const { return expiration_; }
 
 bool Timer::repeat() const { return repeat_; }

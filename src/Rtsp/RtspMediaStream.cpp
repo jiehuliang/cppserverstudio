@@ -16,17 +16,17 @@ bool RtspMediaStream::createFromEs(int payload_type, int time_base) {
 		LOG_ERROR << "Failed to load file: " << url_.c_str();
 		return false;
 	}
-	const char* data = stream_.c_str();
-	size_t size = stream_.size();
+	data_ = stream_.c_str();
+	size_ = stream_.size();
 	int got_sps_pps = 0;
 	H264Nalu sps;
 	H264Nalu pps;
 
-	while (size > 0 && got_sps_pps & 0x3) {
+	while (size_ > 0 && got_sps_pps != 0x3) {
 		H264Nalu nalu;
-		int nalu_len = nalu.get_annexb_nalu(data, size);
-		size -= nalu_len;
-		data += nalu_len;
+		int nalu_len = nalu.get_annexb_nalu(data_, size_);
+		size_ -= nalu_len;
+		data_ += nalu_len;
 
 		if (nalu.nal_unit_type == 7) {
 			sps = nalu;
@@ -42,6 +42,8 @@ bool RtspMediaStream::createFromEs(int payload_type, int time_base) {
 	sdp_ = h264_sdp_create(sps.buffer.c_str(), sps.len, pps.buffer.c_str(), pps.len, payload_type, time_base);
 	encoder_ = std::make_shared<H264RtpEncoder>(_media_track->_ssrc, _media_track->_interleaved, _media_track->_pt, _media_track->_samplerate);
 	createTimeStamp_ = TimeStamp::Now();
+	data_ = stream_.c_str();
+	size_ = stream_.size();
 	return true;
 }
 
@@ -100,23 +102,20 @@ std::string RtspMediaStream::h264_sdp_create(const char* sps, const int sps_len,
 
 void RtspMediaStream::readFrame() {
 	auto nowTime = TimeStamp::Now().microseconds() - createTimeStamp_.microseconds();
-	const char* data = stream_.c_str();
-	size_t size = stream_.size();
 	while (_media_track->_time_stamp * 1000 < nowTime - 50000) {
 		H264Nalu::Ptr nalu = std::make_shared<H264Nalu>();
-		int nalu_len = nalu->get_annexb_nalu(data, size);
-		size -= nalu_len;
-		data += nalu_len;
+		int nalu_len = nalu->get_annexb_nalu(data_, size_);
+		size_ -= nalu_len;
+		data_ += nalu_len;
+		nalu->_dts = _media_track->_time_stamp * 90;
+		nalu->_pts = nalu->_dts;
+		encoder_->inputFrame(std::move(nalu));
 		if (nalu->decodeAble()) {
 			_media_track->_time_stamp += 1000 / 25;
 		}
-		nalu->_dts = _media_track->_time_stamp * 90;
-		nalu->_pts = nalu->_dts;
-		LOG_INFO << "nalu: " << nalu->buffer.c_str();
-		encoder_->inputFrame(std::move(nalu));
-		if (size == 0) {
-			data = stream_.c_str();
-			size = stream_.size();
+		if (size_ == 0) {
+			data_ = stream_.c_str();
+			size_ = stream_.size();
 		}
 	}
 }
@@ -129,4 +128,8 @@ Track::Ptr& RtspMediaStream::getMediaTrack(){
 
 std::string RtspMediaStream::getSdp() {
 	return sdp_;
+}
+
+void RtspMediaStream::setEncoderSendCB(const std::function<void(const RtpPacket::Ptr& rtp)>& cb) {
+	encoder_->set_send_cb(cb);
 }

@@ -1,5 +1,6 @@
 #include "H264Rtp.h"
 #include <arpa/inet.h>
+#include "Logging.h"
 
 
 int H264RtpDecoder::inputRtp(const RtpPacket::Ptr& rtp) {
@@ -40,6 +41,9 @@ int H264RtpEncoder::inputFrame(const H264Nalu::Ptr& nalu) {
         return true;
     }
     default: break;
+    }
+    if(nalu->dropAble()) {
+        return true;
     }
     if (last_nalu_) {
         //如果时间戳发生了变化，那么markbit才置true

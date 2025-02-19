@@ -22,6 +22,8 @@ public:
 
     std::string getSdp();
 
+    void setEncoderSendCB(const std::function<void(const RtpPacket::Ptr& rtp)>& cb);
+
 private:
     TimeStamp createTimeStamp_;
 
@@ -34,6 +36,10 @@ private:
     std::string sdp_;
 
     std::shared_ptr<H264RtpEncoder> encoder_;
+
+private:
+    const char* data_;
+    size_t size_;
 
 };
 

@@ -17,6 +17,7 @@ public:
     void ReStart(TimeStamp now);
 
     void run() const;
+    void cancel();
     TimeStamp expiration() const;
     bool repeat() const;
 

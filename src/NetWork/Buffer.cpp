@@ -55,7 +55,7 @@ std::string Buffer::PeekAllAsString() {
 }
 
 void Buffer::Retrieve(int len) {
-	assert(readablebytes() > len);
+	assert(readablebytes() >= len);
 	if (len + read_index_ < write_index_) {
 		//如果读的内容不超过可读空间，则只用更新read_index_
 		read_index_ += len;
