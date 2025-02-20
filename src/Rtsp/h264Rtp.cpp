@@ -101,7 +101,6 @@ void H264RtpEncoder::packRtpFu(const char* ptr, size_t len, uint32_t pts, bool i
         playload[0] = fu_flag_0;
         playload[1] = fu_flag_1;
         memcpy(playload + 2, ptr + offset, packet_size);
-
         send_cb_(rtp);
 
         offset += packet_size;
@@ -130,10 +129,10 @@ RtpPacket::Ptr H264RtpEncoder::makeRtp(int type,const char* data,size_t len,bool
     header->csrc = 0;
     header->mark = mark;
     header->pt = _pt;
-    header->seq = htons(_seq);
+    header->seq = _seq;
     ++_seq;
-    header->timestamp = htonl(uint64_t(stamp) * _sample_rate / 1000);
-    header->ssrc = htonl(_ssrc);
+    header->timestamp = uint64_t(stamp);
+    header->ssrc = _ssrc;
 
     //”––ß∏∫‘ÿ
     if (data) {

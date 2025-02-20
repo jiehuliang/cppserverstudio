@@ -49,7 +49,7 @@ void TimerQueue::HandleRead(){
 	}
 	ResetTimers();
 }
-Timer::TimerPtr TimerQueue::AddTimer(TimeStamp timestamp,std::function<void()>const &cb,double interval, TimeUnit unit){
+Timer::TimerPtr TimerQueue::AddTimer(TimeStamp timestamp,std::function<bool()>const &cb,double interval, TimeUnit unit){
 	Timer::TimerPtr timer = std::make_shared<Timer>(timestamp, cb, interval, unit);
 	if(Insert(timer))
 	{

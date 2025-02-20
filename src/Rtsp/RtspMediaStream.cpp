@@ -102,7 +102,7 @@ std::string RtspMediaStream::h264_sdp_create(const char* sps, const int sps_len,
 
 void RtspMediaStream::readFrame() {
 	auto nowTime = TimeStamp::Now().microseconds() - createTimeStamp_.microseconds();
-	while (_media_track->_time_stamp * 1000 < nowTime - 50000) {
+	//while (_media_track->_time_stamp * 1000 < nowTime - 50000) {
 		H264Nalu::Ptr nalu = std::make_shared<H264Nalu>();
 		int nalu_len = nalu->get_annexb_nalu(data_, size_);
 		size_ -= nalu_len;
@@ -117,7 +117,7 @@ void RtspMediaStream::readFrame() {
 			data_ = stream_.c_str();
 			size_ = stream_.size();
 		}
-	}
+	//}
 }
 
 Track::Ptr& RtspMediaStream::getMediaTrack(){

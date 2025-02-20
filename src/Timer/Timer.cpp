@@ -1,7 +1,7 @@
 #include "Timer.h"
 #include <functional>
 #include "TimeStamp.h"
-Timer::Timer(TimeStamp timestamp, std::function<void()>const &cb, double interval, TimeUnit unit)
+Timer::Timer(TimeStamp timestamp, std::function<bool()>const &cb, double interval, TimeUnit unit)
     : expiration_(timestamp),
       callback_(std::move(cb)),
       interval_(interval),
@@ -13,13 +13,10 @@ void Timer::ReStart(TimeStamp now){
 }
 
 
-void Timer::run() const{
-    callback_();
-}
-
-void Timer::cancel() {
-    callback_ = []() {};
-    interval_ = 0.0;
+void Timer::run() {
+    if (!callback_() || !(interval_ > 0.0)) {
+        repeat_ = false;
+    }
 }
 
 TimeStamp Timer::expiration() const { return expiration_; }

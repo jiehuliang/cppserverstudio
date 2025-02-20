@@ -102,14 +102,17 @@ void HttpServer::start(){
 
 void HttpServer::SetThreadNums(int thread_nums) { server_->SetThreadNums(thread_nums); }
 
-void HttpServer::ActiveCloseConn(std::weak_ptr<TcpConnection> & connection){
+bool HttpServer::ActiveCloseConn(std::weak_ptr<TcpConnection> & connection){
     TcpConnectionPtr conn = connection.lock(); //防止conn已经被释放
     if (conn)
     {
         if(TimeStamp::AddTime(conn->timestamp(), AUTOCLOSETIMEOUT) < TimeStamp::Now()){
             conn->HandleClose();
+            return false;
         }else{
-            loop_->RunAfter(AUTOCLOSETIMEOUT, std::move(std::bind(&HttpServer::ActiveCloseConn, this, connection)));
+            loop_->RunAfter(AUTOCLOSETIMEOUT, std::move(std::bind(&HttpServer::ActiveCloseConn, this, connection))); 
+            return true;
         }
     }
+    return false;
 }

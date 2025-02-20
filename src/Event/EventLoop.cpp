@@ -100,16 +100,16 @@ void EventLoop::HandleRead(){
     return;
 }
 
-void EventLoop::RunAt(TimeStamp timestamp, std::function<void()>const& cb) {
+void EventLoop::RunAt(TimeStamp timestamp, std::function<bool()>const& cb) {
     timer_queue_->AddTimer(timestamp,std::move(cb),0.0);
 }
 
-void EventLoop::RunAfter(double wait_time, std::function<void()>const& cb, TimeUnit unit) {
+void EventLoop::RunAfter(double wait_time, std::function<bool()>const& cb, TimeUnit unit) {
     TimeStamp timestamp(TimeStamp::AddTime(TimeStamp::Now(), wait_time, unit));
     timer_queue_->AddTimer(timestamp, std::move(cb), 0.0, unit);
 }
 
-Timer::TimerPtr EventLoop::RunEvery(double interval, std::function<void()>const& cb, TimeUnit unit) {
+Timer::TimerPtr EventLoop::RunEvery(double interval, std::function<bool()>const& cb, TimeUnit unit) {
     TimeStamp timestamp(TimeStamp::AddTime(TimeStamp::Now(), interval, unit));
     return timer_queue_->AddTimer(timestamp, std::move(cb), interval, unit);
 }

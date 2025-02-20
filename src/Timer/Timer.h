@@ -12,18 +12,18 @@ public:
 
     using TimerPtr = std::shared_ptr<Timer>;
 
-    Timer(TimeStamp timestamp, std::function<void()>const &cb, double interval = 0.0,TimeUnit unit = TimeUnit::SECONDS);
+    Timer(TimeStamp timestamp, std::function<bool()>const &cb, double interval = 0.0,TimeUnit unit = TimeUnit::SECONDS);
 
     void ReStart(TimeStamp now);
 
-    void run() const;
-    void cancel();
+    void run();
+
     TimeStamp expiration() const;
     bool repeat() const;
 
 private:
     TimeStamp expiration_; // 定时器的绝对时间
-    std::function<void()> callback_; // 到达时间后进行回调
+    std::function<bool()> callback_; // 到达时间后进行回调
     double interval_; // 如果重复，则重复间隔
     bool repeat_;
     TimeUnit unit_; // 时间单位

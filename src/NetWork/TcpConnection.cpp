@@ -123,6 +123,8 @@ void TcpConnection::Send(const char *msg, int len){
         }
         else {
             LOG_ERROR << "TcpConnection::Send - TcpConnection Send Error";
+            channel_->set_write_callback([]() {});
+            HandleClose();
             return;
         }
     }

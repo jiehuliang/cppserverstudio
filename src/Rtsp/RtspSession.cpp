@@ -15,8 +15,6 @@ RtspSession::RtspSession() {
 }
 
 RtspSession::~RtspSession() {
-	_stream->setEncoderSendCB([](const RtpPacket::Ptr& rtp) {});
-	_timer->cancel();
 }
 
 void RtspSession::onWholeRtspPacket(const TcpConnectionPtr& conn, const RtspRequest& request) {
@@ -135,20 +133,27 @@ void RtspSession::handlePlay(const TcpConnectionPtr& conn, const RtspRequest& re
 	resMap.emplace("RTP-Info", rtp_info);
 	resMap.emplace("Range", std::string("npt=") + std::to_string(trackRef->_time_stamp / 1000.0));
 	conn->Send(getRtspResponse("200 OK", resMap));
-
-	auto play = [conn](const RtpPacket::Ptr& packet) {
-		conn->Send(packet->getData()->RetrieveAllAsString());
+	std::weak_ptr<TcpConnection> conn_weak_self = std::dynamic_pointer_cast<TcpConnection>(conn);
+	auto play = [conn_weak_self](const RtpPacket::Ptr& packet) {
+		auto strong_self = conn_weak_self.lock();
+		if (!strong_self) {
+			//本对象已经销毁
+			return false;
+		}
+		LOG_INFO << "rtp seq: " << packet->getHeader()->seq << " ,TimeStamp: " << packet->getHeader()->timestamp;
+		strong_self->Send(packet->getData()->RetrieveAllAsString());
 		};
 	_stream->setEncoderSendCB(play);
 	auto stream = getStream();
-	std::weak_ptr<RtspMediaStream> weak_self = std::dynamic_pointer_cast<RtspMediaStream>(stream);
-	_timer = conn->loop()->RunEvery(100, [weak_self]() {
-		auto strong_self = weak_self.lock();
+	std::weak_ptr<RtspMediaStream> stream_weak_self = std::dynamic_pointer_cast<RtspMediaStream>(stream);
+	_timer = conn->loop()->RunEvery(25, [stream_weak_self]() {
+		auto strong_self = stream_weak_self.lock();
 		if (!strong_self) {
 			//本对象已经销毁
-			return;
+			return false;
 		}
 		strong_self->readFrame();
+		return true;
 	},TimeUnit::MILLISECONDS);
 
 }
