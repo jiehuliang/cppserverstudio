@@ -23,22 +23,22 @@ public:
     void UpdateChannel(Channel *ch);
     void DeleteChannel(Channel *ch);
 
-    //定时器功能
+    //锟斤拷时锟斤拷锟斤拷锟斤拷
     void RunAt(TimeStamp timestamp, std::function<bool()> const& cb);
     void RunAfter(double wait_time, std::function<bool()>const& cb, TimeUnit unit = TimeUnit::SECONDS);
     Timer::TimerPtr RunEvery(double interval,  std::function<bool()>const& cb, TimeUnit unit = TimeUnit::SECONDS);
 
-    // 运行队列中的任务
+    // 锟斤拷锟叫讹拷锟斤拷锟叫碉拷锟斤拷锟斤拷
     void DoToDoList();
 
-    // 将任务添加到队列中。当loop完成polling后运行
+    // 锟斤拷锟斤拷锟斤拷锟斤拷锟接碉拷锟斤拷锟斤拷锟叫★拷锟斤拷loop锟斤拷锟絧olling锟斤拷锟斤拷锟斤拷
     void QueueOneFunc(std::function<void()> fn); 
 
-    // 如果由创建本Loop的线程调用，则立即执行fn任务
-    // 否则，将fn加入到队列中，等待之后运行
+    // 锟斤拷锟斤拷纱锟斤拷锟斤拷锟絃oop锟斤拷锟竭程碉拷锟矫ｏ拷锟斤拷锟斤拷锟斤拷执锟斤拷fn锟斤拷锟斤拷
+    // 锟斤拷锟津，斤拷fn锟斤拷锟诫到锟斤拷锟斤拷锟叫ｏ拷锟饺达拷之锟斤拷锟斤拷锟斤拷
     void RunOneFunc(std::function<void()> fn);
     
-    // 判断调用该函数的是不是当前的线程，即是不是创建当前Loop的线程。
+    // 锟叫断碉拷锟矫该猴拷锟斤拷锟斤拷锟角诧拷锟角碉拷前锟斤拷锟竭程ｏ拷锟斤拷锟角诧拷锟角达拷锟斤拷锟斤拷前Loop锟斤拷锟竭程★拷
     bool IsInLoopThread();
 
     void HandleRead();

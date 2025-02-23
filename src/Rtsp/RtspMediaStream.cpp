@@ -69,11 +69,11 @@ std::string RtspMediaStream::h264_sdp_create(const char* sps, const int sps_len,
 
 	/**
 	 Single NAI Unit Mode = 0. // Single NAI mode (Only nals from 1-23 are allowed)
-	 Non Interleaved Mode = 1£¬// Non-interleaved Mode: 1-23£¬24 (STAP-A)£¬28 (FU-A) are allowed
-	 Interleaved Mode = 2,  // 25 (STAP-B)£¬26 (MTAP16)£¬27 (MTAP24)£¬28 (EU-A)£¬and 29 (EU-B) are allowed.
+	 Non Interleaved Mode = 1ï¿½ï¿½// Non-interleaved Mode: 1-23ï¿½ï¿½24 (STAP-A)ï¿½ï¿½28 (FU-A) are allowed
+	 Interleaved Mode = 2,  // 25 (STAP-B)ï¿½ï¿½26 (MTAP16)ï¿½ï¿½27 (MTAP24)ï¿½ï¿½28 (EU-A)ï¿½ï¿½and 29 (EU-B) are allowed.
 	 Single NAI Unit Mode = 0. // Single NAI mode (Only nals from 1-23 are allowed)
-	 Non Interleaved Mode = 1£¬// Non-interleaved Mode: 1-23£¬24 (STAP-A)£¬28 (FU-A) are allowed
-	 Interleaved Mode = 2,  // 25 (STAP-B)£¬26 (MTAP16)£¬27 (MTAP24)£¬28 (EU-A)£¬and 29 (EU-B) are allowed.
+	 Non Interleaved Mode = 1ï¿½ï¿½// Non-interleaved Mode: 1-23ï¿½ï¿½24 (STAP-A)ï¿½ï¿½28 (FU-A) are allowed
+	 Interleaved Mode = 2,  // 25 (STAP-B)ï¿½ï¿½26 (MTAP16)ï¿½ï¿½27 (MTAP24)ï¿½ï¿½28 (EU-A)ï¿½ï¿½and 29 (EU-B) are allowed.
 	 *
 	 **/
 	int h264_stap_a = 1;
@@ -102,7 +102,7 @@ std::string RtspMediaStream::h264_sdp_create(const char* sps, const int sps_len,
 
 void RtspMediaStream::readFrame() {
 	auto nowTime = TimeStamp::Now().microseconds() - createTimeStamp_.microseconds();
-	//while (_media_track->_time_stamp * 1000 < nowTime - 50000) {
+	while (_media_track->_time_stamp * 1000 < nowTime - 50000) {
 		H264Nalu::Ptr nalu = std::make_shared<H264Nalu>();
 		int nalu_len = nalu->get_annexb_nalu(data_, size_);
 		size_ -= nalu_len;
@@ -117,7 +117,7 @@ void RtspMediaStream::readFrame() {
 			data_ = stream_.c_str();
 			size_ = stream_.size();
 		}
-	//}
+	}
 }
 
 Track::Ptr& RtspMediaStream::getMediaTrack(){

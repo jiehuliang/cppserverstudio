@@ -33,7 +33,7 @@ int H264Nalu::get_annexb_nalu(const char* in, size_t size) {
 	i += 3;
 	nal_start = i;
 
-	while ((stream[i] != 0 || stream[i + 1] != 0 || stream[i + 2] != 0)
+	while ((stream[i] != 0 || stream[i + 1] != 0 || stream[i + 2] != 0 || stream[i + 3] != 0x01)
 		&& (stream[i] != 0 || stream[i + 1] != 0 || stream[i + 2] != 0x01)) {
 		i++;
 		if (i + 3 >= size) {

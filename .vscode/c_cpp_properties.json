@@ -1,0 +1,39 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${default}",
+                "/root/.vs/cppserverstudio/src/Event",
+                "/root/.vs/cppserverstudio/src/http",
+                "/root/.vs/cppserverstudio/src/log",
+                "/root/.vs/cppserverstudio/src/NetWork",
+                "/root/.vs/cppserverstudio/src/Rtsp",
+                "/root/.vs/cppserverstudio/src/Thread",
+                "/root/.vs/cppserverstudio/src/Timer",
+                "/root/.vs/cppserverstudio/src/Util",
+                "${workspaceFolder}/src/Util"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "linux-gcc-x64",
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/root/.vs/cppserverstudio/src/Event",
+                    "/root/.vs/cppserverstudio/src/http",
+                    "/root/.vs/cppserverstudio/src/log",
+                    "/root/.vs/cppserverstudio/src/NetWork/**",
+                    "/root/.vs/cppserverstudio/src/Rtsp",
+                    "/root/.vs/cppserverstudio/src/Thread",
+                    "/root/.vs/cppserverstudio/src/Timer",
+                    "/root/.vs/cppserverstudio/src/Util"
+                ]
+            },
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}

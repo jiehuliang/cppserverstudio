@@ -10,7 +10,11 @@ project ("cppserverstudio")
 # Enable C++11
 set(CMAKE_CXX_STANDARD 11)
 
+# 设置编译类型为 Debug（自动添加 -g）
+set(CMAKE_BUILD_TYPE Debug)
 
+# 针对 Debug 模式添加额外的编译选项
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")  # -g: 生成调试信息, -O0: 禁用优化
 
 #设置子目录
 #Set subdirectories

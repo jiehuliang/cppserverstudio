@@ -60,7 +60,7 @@ public:
 	uint32_t seq : 16;	/* sequence number */
 	uint32_t timestamp;	/* timestamp */
 	uint32_t ssrc;	/* synchronization source */
-	// ¸ºÔØ£¬Èç¹ûÓÐcsrcºÍext£¬Ç°ÃæÎª 4 * csrc + (4 + 4 * ext_len)  [AUTO-TRANSLATED:fcd87b19]
+	// ï¿½ï¿½ï¿½Ø£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½csrcï¿½ï¿½extï¿½ï¿½Ç°ï¿½ï¿½Îª 4 * csrc + (4 + 4 * ext_len)  [AUTO-TRANSLATED:fcd87b19]
 	// Payload, if csrc and ext exist, the front is 4 * csrc + (4 + 4 * ext_len)
 	uint8_t payload;
 
@@ -90,7 +90,7 @@ public:
 	RtpHeader* getHeader();
 	const RtpHeader* getHeader() const;
 
-	//Ö÷»ú×Ö½ÚÐòµÄseq
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½ï¿½seq
 	//Host byte order seq
 	uint16_t getSeq() const;
 	uint32_t getStamp() const;
@@ -126,7 +126,7 @@ public:
 	uint8_t _interleaved = 0;
 	uint16_t _seq = 0;
 	uint32_t _ssrc = 0;
-	//Ê±¼ä´Á£¬µ¥Î»ºÁÃë
+	//Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½
 	uint32_t _time_stamp = 0;
 };
 

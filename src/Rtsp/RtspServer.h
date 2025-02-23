@@ -8,7 +8,7 @@ class EventLoop;
 class TcpServer;
 class TcpConnection;
 
-// 自动关闭的时间，以秒为单位
+// 锟皆讹拷锟截闭碉拷时锟戒，锟斤拷锟斤拷为锟斤拷位
 #define AUTOCLOSETIMEOUT 100
 
 class RtspServer{
@@ -28,8 +28,8 @@ private:
 	EventLoop* loop_;
 	std::unique_ptr<TcpServer> server_;
 
-	// 是否自动关闭连接。
+	// 锟角凤拷锟皆讹拷锟截憋拷锟斤拷锟接★拷
 	bool auto_close_conn_;
 };
 
-#endif // RtspServer_H
+#endif // RTSPSERVER_H

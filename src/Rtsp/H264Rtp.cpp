@@ -25,7 +25,7 @@ void H264RtpEncoder::insertConfigFrame(uint32_t pts) {
     if (!sps_ || !pps_) {
         return;
     }
-    //gop»º´æ´Ósps¿ªÊ¼£¬sps¡¢ppsºóÃæ»¹ÓÐÊ±¼ä´ÁÏàÍ¬µÄ¹Ø¼üÖ¡£¬ËùÒÔmark bitÎªfalse
+    //gopï¿½ï¿½ï¿½ï¿½ï¿½spsï¿½ï¿½Ê¼ï¿½ï¿½spsï¿½ï¿½ppsï¿½ï¿½ï¿½æ»¹ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½Ä¹Ø¼ï¿½Ö¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mark bitÎªfalse
     packRtp(sps_->buffer.c_str(), sps_->len, pts, false, true);
     packRtp(pps_->buffer.c_str(), sps_->len, pts, false, false);
 }
@@ -46,7 +46,7 @@ int H264RtpEncoder::inputFrame(const H264Nalu::Ptr& nalu) {
         return true;
     }
     if (last_nalu_) {
-        //Èç¹ûÊ±¼ä´Á·¢ÉúÁË±ä»¯£¬ÄÇÃ´markbit²ÅÖÃtrue
+        //ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë±ä»¯ï¿½ï¿½ï¿½ï¿½Ã´markbitï¿½ï¿½ï¿½ï¿½true
         inputFrame_l(last_nalu_, last_nalu_->_pts != nalu->_pts);
     }
     last_nalu_ = std::move(nalu);
@@ -54,7 +54,7 @@ int H264RtpEncoder::inputFrame(const H264Nalu::Ptr& nalu) {
 
 bool H264RtpEncoder::inputFrame_l(const H264Nalu::Ptr& nalu, bool is_mark){
     if (nalu->keyFrame()) {
-        //±£Ö¤Ã¿Ò»¸ö¹Ø¼üÖ¡Ç°¶¼ÓÐSPSÓëPPS
+        //ï¿½ï¿½Ö¤Ã¿Ò»ï¿½ï¿½ï¿½Ø¼ï¿½Ö¡Ç°ï¿½ï¿½ï¿½ï¿½SPSï¿½ï¿½PPS
         insertConfigFrame(nalu->_pts);
     }
     packRtp(nalu->buffer.c_str(), nalu->len, nalu->_pts, is_mark, false);
@@ -129,12 +129,12 @@ RtpPacket::Ptr H264RtpEncoder::makeRtp(int type,const char* data,size_t len,bool
     header->csrc = 0;
     header->mark = mark;
     header->pt = _pt;
-    header->seq = _seq;
+    header->seq = htons(_seq);
     ++_seq;
-    header->timestamp = uint64_t(stamp);
-    header->ssrc = _ssrc;
+    header->timestamp = htonl(uint64_t(stamp));
+    header->ssrc = htonl(_ssrc);
 
-    //ÓÐÐ§¸ºÔØ
+    //ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½
     if (data) {
         memcpy(&ptr[RtpPacket::RtpHeaderSize + RtpPacket::RtpTcpHeaderSize], data, len);
     }

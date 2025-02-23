@@ -38,7 +38,7 @@ void RtspSession::onWholeRtspPacket(const TcpConnectionPtr& conn, const RtspRequ
 }
 
 void RtspSession::handleOptions(const TcpConnectionPtr& conn, const RtspRequest& request) {
-	//Ö§³ÖÕâĞ©ÃüÁî
+	//Ö§ï¿½ï¿½ï¿½ï¿½Ğ©ï¿½ï¿½ï¿½ï¿½
 	auto resp = getRtspResponse("200 OK", { "Public" , "OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, ANNOUNCE, RECORD" });
 	conn->Send(resp);
 }
@@ -73,7 +73,7 @@ void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest
 }
 void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& request) {
 	Track::Ptr& trackRef = _stream->getMediaTrack();
-	//trackRef->_inited = true; //ÏÖÔÚ³õÊ¼»¯
+	//trackRef->_inited = true; //ï¿½ï¿½ï¿½Ú³ï¿½Ê¼ï¿½ï¿½
 
 	if (_rtp_type == eRtpType::RTP_Invalid) {
 		auto transport = request.GetRequestValue("Transport");
@@ -137,19 +137,19 @@ void RtspSession::handlePlay(const TcpConnectionPtr& conn, const RtspRequest& re
 	auto play = [conn_weak_self](const RtpPacket::Ptr& packet) {
 		auto strong_self = conn_weak_self.lock();
 		if (!strong_self) {
-			//±¾¶ÔÏóÒÑ¾­Ïú»Ù
+			//å¯¹è±¡å·²é”€æ¯
 			return false;
 		}
-		LOG_INFO << "rtp seq: " << packet->getHeader()->seq << " ,TimeStamp: " << packet->getHeader()->timestamp;
+		LOG_INFO << "rtp seq: " << packet->getSeq() << " ,TimeStamp: " << packet->getStamp();
 		strong_self->Send(packet->getData()->RetrieveAllAsString());
 		};
 	_stream->setEncoderSendCB(play);
 	auto stream = getStream();
 	std::weak_ptr<RtspMediaStream> stream_weak_self = std::dynamic_pointer_cast<RtspMediaStream>(stream);
-	_timer = conn->loop()->RunEvery(25, [stream_weak_self]() {
+	_timer = conn->loop()->RunEvery(500, [stream_weak_self]() {
 		auto strong_self = stream_weak_self.lock();
 		if (!strong_self) {
-			//±¾¶ÔÏóÒÑ¾­Ïú»Ù
+			//å¯¹è±¡å·²é”€æ¯
 			return false;
 		}
 		strong_self->readFrame();
