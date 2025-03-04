@@ -6,8 +6,8 @@
 #include <cstring>
 #include "common.h"
 
-static const int kPrePendIndex = 8;//prependindex³¤¶È
-static const int kInitalSize = 1024;//³õÊ¼»¯´óÐ¡¿ª±Ù¿Õ¼ä³¤¶È
+static const int kPrePendIndex = 8;//prependindexï¿½ï¿½ï¿½ï¿½
+static const int kInitalSize = 1024;//ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½Ù¿Õ¼ä³¤ï¿½ï¿½
 
 class Buffer{
     public:
@@ -15,10 +15,10 @@ class Buffer{
         Buffer();
         ~Buffer();
 
-        //bufferµÄÆðÊ¼Î»ÖÃ
+        //bufferï¿½ï¿½ï¿½ï¿½Ê¼Î»ï¿½ï¿½
         char* begin();
-        //const ¶ÔÏóµÄbeginº¯Êý£¬Ê¹µÃconst¶ÔÏóµ÷ÓÃbeginº¯ÊýÊ±
-        //ËùµÃµ½µÄµü´úÆ÷Ö»ÄÜ¶ÔÊý¾Ý½øÐÐ¶Á²Ù×÷£¬¶ø²»ÄÜ½øÐÐÐÞ¸Ä
+        //const ï¿½ï¿½ï¿½ï¿½ï¿½beginï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½constï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½beginï¿½ï¿½ï¿½ï¿½Ê±
+        //ï¿½ï¿½ï¿½Ãµï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½Ü¶ï¿½ï¿½ï¿½ï¿½Ý½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½
         const char* begin() const;
 
         char* beginread();
@@ -27,37 +27,37 @@ class Buffer{
         char* beginwrite();
         const char* beginwrite() const;
 
-        //Ìí¼ÓÊý¾Ý
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         void AppendPrepend(const  char* message, int len);
         void Append(const char* message);
         void Append(const char* message, int len);
         void Append(const std::string& message);
 
-        //»ñÈ¡¿É¶Á´óÐ¡µÈ
+        //ï¿½ï¿½È¡ï¿½É¶ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½
         int readablebytes() const;
         int writeablebytes() const;
         int prependablebytes() const;
 
-        //²é¿´Êý¾Ý,µ«²»¸üÐÂ`read_index_`µÄÎ»ÖÃ
+        //ï¿½é¿´ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½`read_index_`ï¿½ï¿½Î»ï¿½ï¿½
         char* Peek();
         const char* Peek() const;
         std::string PeekAsString(int len);
         std::string PeekAllAsString();
 
-        //È¡Êý¾Ý£¬È¡³öºó¸üÐÂread_index_Î»ÖÃ£¬Ïàµ±ÓÚ²»¿ÉÖØ¸´È¡
-        //¶¨³¤
+        //È¡ï¿½ï¿½ï¿½Ý£ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½read_index_Î»ï¿½Ã£ï¿½ï¿½àµ±ï¿½Ú²ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½È¡
+        //ï¿½ï¿½ï¿½ï¿½
         void Retrieve(int len);
         std::string RetrieveAsString(int len);
 
-        //È«²¿
+        //È«ï¿½ï¿½
         void RetrieveAll();
         std::string RetrieveAllAsString();
 
-        //Ä³¸öË÷ÒýÖ®Ç°
+        //Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö®Ç°
         void RetrieveUtil(const char* end);
         std::string RetrieveUtilAsString(const char* end);
 
-        //²é¿´¿Õ¼ä
+        //ï¿½é¿´ï¿½Õ¼ï¿½
         void EnsureWriteableBytes(int len);
 
     private:

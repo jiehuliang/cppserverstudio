@@ -20,7 +20,7 @@ class HttpResponse;
  
 
 #define GENERATE_ENUM_ENTRIES(name, entries) \
-    enum class name : uint8_t { entries }; \
+    enum class name : uint8_t { entries }; 
 
 // Macros to disable copying and moving
 #define DISALLOW_COPY(cname)     \
@@ -53,9 +53,9 @@ std::string makeRandStr(int sz, bool printable = true);
 
 template<typename T>
 T generateRandomInt() {
-    //ÀûÓÃstd::numeric_limits»ñÈ¡TÀàÐÍµÄ×î´ó¿ÉÄÜÖµ
+    //ï¿½ï¿½ï¿½ï¿½std::numeric_limitsï¿½ï¿½È¡Tï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
     T maxVal = std::numeric_limits<T>::max();
-    // ´´½¨Ò»¸öËæ»úÊýÉú³ÉÆ÷
+    // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     std::random_device rd;
     std::mt19937 gen(rd());
 

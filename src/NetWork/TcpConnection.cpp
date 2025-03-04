@@ -46,8 +46,8 @@ void TcpConnection::ConnectionEstablished(){
 
 void TcpConnection::ConnectionDestructor(){
     //std::cout << CurrentThread::tid() << " TcpConnection::ConnectionDestructor" << std::endl;
-    // ½«¸Ã²Ù×÷´ÓÎö¹¹´¦£¬ÒÆÖ²¸Ã´¦£¬Ôö¼ÓÐÔÄÜ£¬ÒòÎªÔÚÎö¹¹Ç°£¬µ±Ç°`TcpConnection`ÒÑ¾­Ïàµ±ÓÚ¹Ø±ÕÁË¡£
-    // ÒÑ¾­¿ÉÒÔ½«Æä´Óloop´¦Àë¿ª
+    // ï¿½ï¿½ï¿½Ã²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö²ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü£ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Ç°`TcpConnection`ï¿½Ñ¾ï¿½ï¿½àµ±ï¿½Ú¹Ø±ï¿½ï¿½Ë¡ï¿½
+    // ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½ï¿½loopï¿½ï¿½ï¿½ë¿ª
     loop_->DeleteChannel(channel_.get());
 }
 
@@ -107,19 +107,19 @@ void TcpConnection::Send(const char *msg, int len){
     int send_size = 0;
 
     
-    //Èç¹û´ËÊ±send_buf_ÖÐÃ»ÓÐÊý¾Ý£¬Ôò¿ÉÒÔÏÈ³¢ÊÔ·¢ËÍÊý¾Ý
+    //ï¿½ï¿½ï¿½ï¿½ï¿½Ê±send_buf_ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È³ï¿½ï¿½Ô·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if (send_buf_->readablebytes() == 0) {
-        //Ç¿ÖÆÀàÐÍ×ª»»£¬·½±ãremaining²Ù×÷
+        //Ç¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½remainingï¿½ï¿½ï¿½ï¿½
         send_size = static_cast<int>(write(connfd_, msg, len));
-
+        // send_size = static_cast<int>(send(connfd_, msg, len, 0));
         if (send_size >= 0) {
-            //ËµÃ÷·¢ËÍÁË²¿·ÖÊý¾Ý
+            //Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             remaining -= send_size;
         }
         else if ((send_size == -1) && 
             ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
-            //ËµÃ÷´ËÊ±TCP»º³åÇøÊÇÂúµÄ£¬Ã»ÓÐ°ì·¨Ð´Èë£¬Ê²Ã´¶¼²»×ö
-            send_size = 0;//ËµÃ÷Êµ¼ÊÉÏÃ»ÓÐ·¢ËÍÊý¾Ý
+            //Ëµï¿½ï¿½ï¿½ï¿½Ê±TCPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½Ã»ï¿½Ð°ì·¨Ð´ï¿½ë£¬Ê²Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            send_size = 0;//Ëµï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ð·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         }
         else {
             LOG_ERROR << "TcpConnection::Send - TcpConnection Send Error";
@@ -128,15 +128,15 @@ void TcpConnection::Send(const char *msg, int len){
             return;
         }
     }
-    //½«Ê£ÓàµÄÊý¾Ý¼ÓÈëµ½send_bufÖÐ£¬µÈ´ýºóÐø·¢ËÍ¡£
+    //ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¼ï¿½ï¿½ëµ½send_bufï¿½Ð£ï¿½ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¡ï¿½
     assert(remaining <= len);
     if (remaining > 0) {
         send_buf_->Append(msg + send_size, remaining);
 
-        //µ½´ïÕâÒ»²½Ê±
-        //1.»¹Ã»ÓÐ¼àÌýÐ´ÊÂ¼þ£¬ÔÚ´ËÊ±½øÐÐÁË¼àÌý
-        //2.¼àÌýÁËÐ´ÊÂ¼þ£¬²¢ÇÒÒÑ¾­´¥·¢ÁË£¬´ËÊ±ÔÙ´Î¼àÌý£¬Ç¿ÖÆ´¥·¢Ò»´Î£¬
-        // Èç¹ûÇ¿ÖÆ´¥·¢Ê§°Ü£¬ÈÔÈ»¿ÉÒÔµÈ´ýºóÐøTCP»º³åÇø¿ÉÐ´¡£
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ê±
+        //1.ï¿½ï¿½Ã»ï¿½Ð¼ï¿½ï¿½ï¿½Ð´ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ú´ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ë¼ï¿½ï¿½ï¿½
+        //2.ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½Ê±ï¿½Ù´Î¼ï¿½ï¿½ï¿½ï¿½ï¿½Ç¿ï¿½Æ´ï¿½ï¿½ï¿½Ò»ï¿½Î£ï¿½
+        // ï¿½ï¿½ï¿½Ç¿ï¿½Æ´ï¿½ï¿½ï¿½Ê§ï¿½Ü£ï¿½ï¿½ï¿½È»ï¿½ï¿½ï¿½ÔµÈ´ï¿½ï¿½ï¿½ï¿½ï¿½TCPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½
         channel_->EnableWrite();
     }
 }
@@ -176,10 +176,12 @@ void TcpConnection::ReadNonBlocking(){
 
 void TcpConnection::WriteNonBlocking(){
     int remaining = send_buf_->readablebytes();
-    int send_size = static_cast<int>(write(connfd_, send_buf_->Peek(), remaining));
+    if (remaining == 0){
+        return;
+    }
+    // int send_size = static_cast<int>(::write(connfd_, send_buf_->Peek(), remaining));
+    int send_size = static_cast<int>(::send(connfd_, send_buf_->Peek(), remaining, 0));
     if ((send_size == -1) && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
-        //ËµÃ÷´ËÊ±TCP»º³åÇøÊÇÂúµÄ£¬Ã»ÓÐ°ì·¨Ð´Èë£¬Ê²Ã´¶¼²»×ö
-        //Ö÷ÒªÊ±·ÀÖ¹£¬ÔÚSendÊ±writeºó¼àÌýEPOLLOUT£¬µ«ÊÇTCP»º³åÇø»¹ÊÇÂúµÄ£¬
         send_size = 0;
     }
     else if (send_size == -1) {

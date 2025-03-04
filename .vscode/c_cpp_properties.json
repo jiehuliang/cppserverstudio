@@ -4,15 +4,14 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "/root/.vs/cppserverstudio/src/Event",
-                "/root/.vs/cppserverstudio/src/http",
-                "/root/.vs/cppserverstudio/src/log",
-                "/root/.vs/cppserverstudio/src/NetWork",
-                "/root/.vs/cppserverstudio/src/Rtsp",
-                "/root/.vs/cppserverstudio/src/Thread",
-                "/root/.vs/cppserverstudio/src/Timer",
-                "/root/.vs/cppserverstudio/src/Util",
-                "${workspaceFolder}/src/Util"
+                "${workspaceFolder}/src/Event/**",
+                "${workspaceFolder}/src/http/**",
+                "${workspaceFolder}/src/log/**",
+                "${workspaceFolder}/src/NetWork/**",
+                "${workspaceFolder}/src/Rtsp/**",
+                "${workspaceFolder}/src/Thread/**",
+                "${workspaceFolder}/src/Timer/**",
+                "${workspaceFolder}/src/Util/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
@@ -22,14 +21,14 @@
             "browse": {
                 "path": [
                     "/usr/include",
-                    "/root/.vs/cppserverstudio/src/Event",
-                    "/root/.vs/cppserverstudio/src/http",
-                    "/root/.vs/cppserverstudio/src/log",
-                    "/root/.vs/cppserverstudio/src/NetWork/**",
-                    "/root/.vs/cppserverstudio/src/Rtsp",
-                    "/root/.vs/cppserverstudio/src/Thread",
-                    "/root/.vs/cppserverstudio/src/Timer",
-                    "/root/.vs/cppserverstudio/src/Util"
+                    "${workspaceFolder}/src/Event",
+                    "${workspaceFolder}/src/http",
+                    "${workspaceFolder}/src/log",
+                    "${workspaceFolder}/src/NetWork",
+                    "${workspaceFolder}/src/Rtsp",
+                    "${workspaceFolder}/src/Thread",
+                    "${workspaceFolder}/src/Timer",
+                    "${workspaceFolder}/src/Util"
                 ]
             },
             "configurationProvider": "ms-vscode.cmake-tools"

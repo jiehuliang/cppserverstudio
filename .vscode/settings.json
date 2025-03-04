@@ -45,6 +45,23 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "typeinfo": "cpp",
-        "memory": "cpp"
-    }
+        "memory": "cpp",
+        "string_view": "cpp",
+        "bit": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "csignal": "cpp",
+        "cstddef": "cpp",
+        "map": "cpp",
+        "set": "cpp",
+        "algorithm": "cpp",
+        "iterator": "cpp",
+        "memory_resource": "cpp",
+        "random": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp"
+    },
+    "C_Cpp.clang_format_fallbackStyle": "",
+    "C_Cpp.default.compilerPath": ""
 }

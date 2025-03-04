@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#define RTCP_PT_MAP_ENTRIES(XX) \
+#define RTCP_TYPE_MAP_ENTRIES(XX) \
 	XX(RTCP_FIR, 192) \
 	XX(RTCP_NACK, 193) \
 	XX(RTCP_SMPTETC, 194) \
@@ -13,7 +13,7 @@
 	XX(RTCP_RR, 201) \
 	XX(RTCP_SDES, 202) \
 	XX(RTCP_BYE, 203) \
-	XX(RTCP_APP, 204) \
+	XX(RTCP_APP, 204) 
 
 #define SDES_TYPE_MAP_ENTRIES(XX) \
 	XX(RTCP_SDES_END, 0) \
@@ -24,39 +24,42 @@
     XX(RTCP_SDES_LOC, 5) \
     XX(RTCP_SDES_TOOL, 6) \
     XX(RTCP_SDES_NOTE, 7) \
-    XX(RTCP_SDES_PRIVATE, 8)
+    XX(RTCP_SDES_PRIVATE, 8) 
 	
 #define PSFB_TYPE_MAP(XX) \
 	XX(RTCP_PSFB_PLI, 1) \
     XX(RTCP_PSFB_SLI, 2) \
     XX(RTCP_PSFB_RPSI, 3) \
     XX(RTCP_PSFB_FIR, 4) \
-    XX(RTCP_PSFB_TSTR, 5)\
-    XX(RTCP_PSFB_TSTN, 6)\
+    XX(RTCP_PSFB_TSTR, 5) \
+    XX(RTCP_PSFB_TSTN, 6) \
     XX(RTCP_PSFB_VBCM, 7) \
-    XX(RTCP_PSFB_REMB, 15)
+    XX(RTCP_PSFB_REMB, 15) 
 
 #define RTPFB_TYPE_MAP(XX) \
     XX(RTCP_RTPFB_NACK, 1) \
     XX(RTCP_RTPFB_TMMBR, 3) \
     XX(RTCP_RTPFB_TMMBN, 4) \
-    XX(RTCP_RTPFB_TWCC, 15)
+    XX(RTCP_RTPFB_TWCC, 15) \
+
 
 #define XX(name, value) name = value,
-GENERATE_ENUM_ENTRIES(RTCP_PT, RTCP_PT_MAP_ENTRIES(XX))
+GENERATE_ENUM_ENTRIES(RTCP_TYPE, RTCP_TYPE_MAP_ENTRIES(XX))
 #undef XX
 
 #define XX(name, value) name = value,
 GENERATE_ENUM_ENTRIES(SDES_TYPE, SDES_TYPE_MAP_ENTRIES(XX))
 #undef XX
 
-#define XX(name, value) name = value,
-GENERATE_ENUM_ENTRIES(PSFB_TYPE, PSFB_TYPE_MAP(XX))
-#undef XX
+ #define XX(name, value) name = value,
+ GENERATE_ENUM_ENTRIES(PSFB_TYPE, PSFB_TYPE_MAP(XX))
+ #undef XX
 
-#define XX(name, value) name = value,
-GENERATE_ENUM_ENTRIES(RTPFB_TYPE, RTPFB_TYPE_MAP(XX))
-#undef XX
+ #define XX(name, value) name = value,
+//   GENERATE_ENUM_ENTRIES(RTPFB_TYPE, RTPFB_TYPE_MAP(XX))
+enum class RTPFB_TYPE : uint8_t { RTPFB_TYPE_MAP(XX) }; 
+ #undef XX
+
 
 class RtcpHeader {
 public:
@@ -75,7 +78,8 @@ private:
     uint32_t length : 16;
 
 public:
-
+    void setSize(size_t size);
+    size_t getSize();
 };
 
 class ReportItem {

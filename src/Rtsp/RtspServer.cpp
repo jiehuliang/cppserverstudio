@@ -37,9 +37,9 @@ void RtspServer::OnMessage(const std::shared_ptr<TcpConnection>& conn) {
 		HttpContext* context = conn->context();
 		if (!context->ParaseRequest(str))
 		{
-			LOG_INFO << "RtspServer::onMessage : Receive non Rtsp message";
-			conn->Send("Rtsp/1.0 400 Bad Request\r\n\r\n");
-			conn->HandleClose();
+			LOG_INFO << "RtspServer::onMessage : Receive non Rtsp message: " << str;
+			// conn->Send("Rtsp/1.0 400 Bad Request\r\n\r\n");
+			// conn->HandleClose();
 		}
 
 		if (context->GetCompleteRequest())
