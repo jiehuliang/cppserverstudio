@@ -10,6 +10,24 @@ Buffer::Buffer()
 
 Buffer::~Buffer() {}
 
+Buffer::Buffer(Buffer&& buf) 
+	:buffer_(std::move(buf.buffer_)), 
+	read_index_(buf.read_index_), 
+	write_index_(buf.write_index_) {}
+
+Buffer& Buffer::operator=(Buffer&& buf) {
+	if (this != &buf) {
+		buffer_.clear();
+		read_index_ = kPrePendIndex;
+		write_index_ = kPrePendIndex;
+
+		buffer_ = std::move(buf.buffer_);
+		read_index_ = buf.read_index_;
+		write_index_ = buf.write_index_;
+	}
+	return *this;
+}
+
 char* Buffer::begin() { return &*buffer_.begin(); }
 const char* Buffer::begin() const { return &*buffer_.begin(); }
 char* Buffer::beginread() { return begin() + read_index_; }

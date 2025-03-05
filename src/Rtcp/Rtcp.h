@@ -44,20 +44,19 @@
 
 
 #define XX(name, value) name = value,
-GENERATE_ENUM_ENTRIES(RTCP_TYPE, RTCP_TYPE_MAP_ENTRIES(XX))
+enum class RTCP_TYPE : uint8_t { RTCP_TYPE_MAP_ENTRIES(XX) };
 #undef XX
 
 #define XX(name, value) name = value,
-GENERATE_ENUM_ENTRIES(SDES_TYPE, SDES_TYPE_MAP_ENTRIES(XX))
+enum class SDES_TYPE : uint8_t { SDES_TYPE_MAP_ENTRIES(XX) };
 #undef XX
 
 #define XX(name, value) name = value,
-GENERATE_ENUM_ENTRIES(PSFB_TYPE, PSFB_TYPE_MAP(XX))
+enum class PSFB_TYPE : uint8_t { PSFB_TYPE_MAP(XX) };
 #undef XX
 
 #define XX(name, value) name = value,
-GENERATE_ENUM_ENTRIES(RTPFB_TYPE, RTPFB_TYPE_MAP(XX))
-//enum class RTPFB_TYPE : uint8_t { RTPFB_TYPE_MAP(XX) }; 
+enum class RTPFB_TYPE : uint8_t { RTPFB_TYPE_MAP(XX) }; 
 #undef XX
 
 
@@ -79,6 +78,7 @@ private:
 
 public:
     void setSize(size_t size);
+
     size_t getSize();
 };
 

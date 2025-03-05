@@ -17,10 +17,7 @@ class HttpServer;
 class HttpContext;
 class HttpRequest;
 class HttpResponse;
- 
 
-#define GENERATE_ENUM_ENTRIES(name, entries) \
-    enum class name : uint8_t { entries }; 
 
 // Macros to disable copying and moving
 #define DISALLOW_COPY(cname)     \

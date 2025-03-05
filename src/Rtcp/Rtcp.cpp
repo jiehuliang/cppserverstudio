@@ -11,7 +11,6 @@ size_t RtcpHeader::getSize(){
     return (1 + ntohs(length)) << 2;
 }
 
-
 static size_t alignSize(size_t bytes) {
     return (size_t) ((bytes + 3) >> 2) << 2;
 }

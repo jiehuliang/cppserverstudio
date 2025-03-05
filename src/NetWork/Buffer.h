@@ -11,9 +11,13 @@ static const int kInitalSize = 1024;//��ʼ����С���ٿռ䳤��
 
 class Buffer{
     public:
-        DISALLOW_COPY_AND_MOVE(Buffer);
+        DISALLOW_COPY(Buffer);
+
         Buffer();
         ~Buffer();
+
+        Buffer(Buffer&& buf);  
+        Buffer& operator=(Buffer&& buf);
 
         //buffer����ʼλ��
         char* begin();

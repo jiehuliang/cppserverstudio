@@ -18,8 +18,11 @@ public:
 	virtual std::shared_ptr<Buffer> createRtcpSR(uint32_t rtcp_ssrc);
 
 protected:
+	//收到或发送的rtp的字节数
 	size_t _bytes = 0;
+	//收到或发送的rtp的个数
 	size_t _packets = 0;
+	//上次的rtp时间戳,毫秒
 	uint32_t _last_rtp_stamp = 0;
 	uint64_t _last_ntp_stamp_ms = 0;
 };
