@@ -51,14 +51,14 @@ GENERATE_ENUM_ENTRIES(RTCP_TYPE, RTCP_TYPE_MAP_ENTRIES(XX))
 GENERATE_ENUM_ENTRIES(SDES_TYPE, SDES_TYPE_MAP_ENTRIES(XX))
 #undef XX
 
- #define XX(name, value) name = value,
- GENERATE_ENUM_ENTRIES(PSFB_TYPE, PSFB_TYPE_MAP(XX))
- #undef XX
+#define XX(name, value) name = value,
+GENERATE_ENUM_ENTRIES(PSFB_TYPE, PSFB_TYPE_MAP(XX))
+#undef XX
 
- #define XX(name, value) name = value,
-//   GENERATE_ENUM_ENTRIES(RTPFB_TYPE, RTPFB_TYPE_MAP(XX))
-enum class RTPFB_TYPE : uint8_t { RTPFB_TYPE_MAP(XX) }; 
- #undef XX
+#define XX(name, value) name = value,
+GENERATE_ENUM_ENTRIES(RTPFB_TYPE, RTPFB_TYPE_MAP(XX))
+//enum class RTPFB_TYPE : uint8_t { RTPFB_TYPE_MAP(XX) }; 
+#undef XX
 
 
 class RtcpHeader {
@@ -137,7 +137,9 @@ block  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class RtcpSR : public RtcpHeader {
 public:
     uint32_t ssrc;
+    // ntp timestamp MSW(in second)
     uint32_t ntpmsw;
+    // ntp timestamp LSW(in picosecond)
     uint32_t ntplsw;
     uint32_t rtpts;
     uint32_t packet_count;

@@ -18,7 +18,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")  # -g: 生成调试信息, -O0: 禁用优化
 
 #设置子目录
 #Set subdirectories
-set(SUB_DIR_LIST "Util" "NetWork" "Event" "Timer" "Thread" "http" "log" "Rtsp")
+set(SUB_DIR_LIST "Util" "NetWork" "Event" "Timer" "Thread" "http" "log" "Rtsp" "Rtcp")
 
 foreach(SUB_DIR ${SUB_DIR_LIST})
     #遍历源文件

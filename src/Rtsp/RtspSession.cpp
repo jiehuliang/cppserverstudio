@@ -38,13 +38,10 @@ void RtspSession::onWholeRtspPacket(const TcpConnectionPtr& conn, const RtspRequ
 }
 
 void RtspSession::handleOptions(const TcpConnectionPtr& conn, const RtspRequest& request) {
-	//֧����Щ����
 	auto resp = getRtspResponse("200 OK", { "Public" , "OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, ANNOUNCE, RECORD" });
 	conn->Send(resp);
 }
 void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest& request) {
-	//conn->loop()->RunEvery();
-
 
 	_stream = std::make_shared<RtspMediaStream>(_streamid);
 
@@ -73,7 +70,7 @@ void RtspSession::handleDescribe(const TcpConnectionPtr& conn, const RtspRequest
 }
 void RtspSession::handleSetup(const TcpConnectionPtr& conn, const RtspRequest& request) {
 	Track::Ptr& trackRef = _stream->getMediaTrack();
-	//trackRef->_inited = true; //���ڳ�ʼ��
+	//trackRef->_inited = true; 
 
 	if (_rtp_type == eRtpType::RTP_Invalid) {
 		auto transport = request.GetRequestValue("Transport");

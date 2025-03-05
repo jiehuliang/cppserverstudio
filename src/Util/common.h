@@ -53,12 +53,12 @@ std::string makeRandStr(int sz, bool printable = true);
 
 template<typename T>
 T generateRandomInt() {
-    //����std::numeric_limits��ȡT���͵�������ֵ
+    //使用std::numeric_limits获取类型 T 的最大值ֵ
     T maxVal = std::numeric_limits<T>::max();
-    // ����һ�������������
+    // 创建一个随机设备，用于生成随机种子
     std::random_device rd;
     std::mt19937 gen(rd());
-
+    // 创建一个均匀整数分布，范围是 0 到 maxVal
     std::uniform_int_distribution<T> dis(0, maxVal);
     return dis(gen);
 }

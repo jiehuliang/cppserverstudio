@@ -55,5 +55,8 @@ void RtcpSR::setNtpStamp(struct timeval tv) {
 }
 
 void RtcpSR::setNtpStamp(uint64_t unix_stamp_ms) {
-    
+    struct timeval tv;
+    tv.tv_sec = unix_stamp_ms / 1000;
+    tv.tv_usec = (unix_stamp_ms % 1000) * 1000;
+    setNtpStamp(tv);
 }
